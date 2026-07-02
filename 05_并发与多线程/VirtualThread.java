@@ -1,0 +1,215 @@
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.List;
+import java.util.stream.IntStream;
+
+/**
+ * VirtualThread.java - 虚拟线程（JDK 21+ 重大特性）
+ * <p>
+ * 学习要点：
+ * 1. 什么是虚拟线程
+ * 2. 虚拟线程 vs 平台线程
+ * 3. 创建虚拟线程的多种方式
+ * 4. 虚拟线程的应用场景
+ * 5. Thread Builder API
+ * 6. 虚拟线程的性能优势
+ */
+public class VirtualThread {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        // ============ 1. 创建虚拟线程的最简方式 ============
+        System.out.println("========== 创建虚拟线程 ==========");
+
+        // 方式一：Thread.startVirtualThread(Runnable)
+        Thread vt1 = Thread.startVirtualThread(() -> {
+            System.out.println("虚拟线程1: " + Thread.currentThread());
+        });
+        vt1.join();
+
+        // 方式二：Thread.ofVirtual()
+        Thread vt2 = Thread.ofVirtual()
+            .name("my-virtual-1")
+            .start(() -> {
+                System.out.println("虚拟线程2: " + Thread.currentThread());
+            });
+        vt2.join();
+
+        // 方式三：Thread.ofVirtual().unstarted()
+        Thread vt3 = Thread.ofVirtual()
+            .name("my-virtual-2")
+            .unstarted(() -> System.out.println("虚拟线程3: " + Thread.currentThread()));
+        vt3.start();
+        vt3.join();
+
+        // ============ 2. 虚拟线程 vs 平台线程对比 ============
+        System.out.println("\n========== 虚拟线程 vs 平台线程 ==========");
+
+        Thread virtual = Thread.ofVirtual().unstarted(() -> {
+            System.out.println("是虚拟线程? " + Thread.currentThread().isVirtual());
+            System.out.println("守护线程? " + Thread.currentThread().isDaemon());
+        });
+        virtual.start();
+        virtual.join();
+
+        Thread platform = Thread.ofPlatform().unstarted(() -> {
+            System.out.println("是虚拟线程? " + Thread.currentThread().isVirtual());
+        });
+        platform.start();
+        platform.join();
+
+        // ============ 3. 虚拟线程执行器 ============
+        System.out.println("\n========== 虚拟线程执行器 ==========");
+
+        // 推荐做法：一个任务一个虚拟线程
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            IntStream.range(0, 10).forEach(i -> {
+                executor.submit(() -> {
+                    Thread.sleep(50);
+                    System.out.println("任务" + i + " -> " + Thread.currentThread());
+                    return null;
+                });
+            });
+        }
+        // try-with-resources 会自动 shutdown
+
+        // ============ 4. 性能对比：100 万个"线程" ============
+        System.out.println("\n========== 百万级并发 ==========");
+        System.out.println("平台线程池创建 10000 个任务:");
+        long start = System.currentTimeMillis();
+        try (ExecutorService platformPool = Executors.newFixedThreadPool(200)) {
+            for (int i = 0; i < 10_000; i++) {
+                platformPool.submit(() -> {
+                    Thread.sleep(50);
+                    return null;
+                });
+            }
+        }
+        System.out.println("平台线程池耗时: " + (System.currentTimeMillis() - start) + "ms");
+
+        System.out.println("\n虚拟线程创建 10000 个任务:");
+        start = System.currentTimeMillis();
+        try (ExecutorService vExec = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int i = 0; i < 10_000; i++) {
+                vExec.submit(() -> {
+                    Thread.sleep(50);
+                    return null;
+                });
+            }
+        }
+        System.out.println("虚拟线程耗时: " + (System.currentTimeMillis() - start) + "ms");
+
+        // ============ 5. Thread Builder API ============
+        System.out.println("\n========== Thread Builder ==========");
+
+        // Thread.Builder 是 JDK 21+ 引入的
+        Thread.Builder builder = Thread.ofVirtual()
+            .name("worker-", 0)                             // 名字前缀 + 递增序号
+            .inheritInheritableThreadLocals(false);         // 不继承 InheritableThreadLocal
+
+        Thread t1 = builder.unstarted(() -> System.out.println(Thread.currentThread().getName()));
+        Thread t2 = builder.unstarted(() -> System.out.println(Thread.currentThread().getName()));
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+
+        // ============ 6. 虚拟线程的 IO 阻塞（自动 unmount） ============
+        System.out.println("\n========== IO 阻塞演示 ==========");
+        try (ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor()) {
+            // 10 个虚拟线程各自阻塞在网络请求上
+            for (int i = 0; i < 10; i++) {
+                final int id = i;
+                exec.submit(() -> {
+                    long t = System.currentTimeMillis();
+                    // 模拟 IO：sleep 会让虚拟线程 unmount，不占用平台线程
+                    Thread.sleep(100);
+                    System.out.println("任务" + id + " 完成 (" + (System.currentTimeMillis() - t) + "ms)");
+                    return null;
+                });
+            }
+        }
+
+        // ============ 7. 何时不适合虚拟线程 ============
+        System.out.println("\n========== 使用建议 ==========");
+        System.out.println("适合虚拟线程：IO 密集 (HTTP、数据库、文件)");
+        System.out.println("不适合虚拟线程：CPU 密集 (计算)");
+        System.out.println("避免：synchronized 长时间持有（会 pin 平台线程）");
+    }
+}
+
+/*
+ * =============== 什么是虚拟线程 ===============
+ *
+ * 虚拟线程（Virtual Thread）是 JDK 21 引入的正式特性（JEP 444）：
+ * - 由 JVM 管理，不是 1:1 映射到操作系统线程
+ * - 极其轻量：每个只有几百字节，可创建百万个
+ * - 面向 IO 阻塞场景优化
+ *
+ * =============== 虚拟线程 vs 平台线程 ===============
+ *
+ *                  平台线程                虚拟线程
+ * 实现             OS 线程（重）           JVM 管理（轻）
+ * 内存             ~1MB 栈                 几百字节
+ * 数量             通常几百到几千          可以百万级
+ * 创建成本         高                      极低
+ * 上下文切换       内核态                  用户态
+ * 使用场景         CPU 密集                IO 密集
+ *
+ * =============== 工作原理 ===============
+ *
+ * 虚拟线程使用 M:N 调度：
+ * - 多个虚拟线程复用少量平台线程（carrier thread）
+ * - 阻塞时 unmount，让出平台线程
+ * - 唤醒后重新 mount
+ *
+ * 相当于把"每请求一线程"的模式变便宜了。
+ *
+ * =============== 创建方式对比 ===============
+ *
+ * // 1. 一次性启动
+ * Thread.startVirtualThread(runnable);
+ *
+ * // 2. Builder 模式
+ * Thread.ofVirtual().name("worker").start(runnable);
+ *
+ * // 3. 未启动
+ * Thread t = Thread.ofVirtual().unstarted(runnable);
+ * t.start();
+ *
+ * // 4. 执行器（推荐）
+ * try (var exec = Executors.newVirtualThreadPerTaskExecutor()) {
+ *     exec.submit(task);
+ * }
+ *
+ * =============== 何时使用 ===============
+ *
+ * ✅ 适合虚拟线程：
+ * - HTTP 服务器每请求一线程
+ * - 数据库连接每查询一线程
+ * - 微服务的下游调用（大量 IO）
+ * - 消息队列消费者
+ *
+ * ❌ 不适合：
+ * - CPU 密集型计算（用平台线程或 ForkJoinPool）
+ * - 长时间持有 synchronized 锁（用 ReentrantLock）
+ * - 使用 ThreadLocal 存大量数据（考虑 ScopedValue）
+ *
+ * =============== Pinning 问题（避免） ===============
+ *
+ * 虚拟线程在以下情况会 pin 到平台线程（无法 unmount）：
+ * 1. synchronized 块中执行阻塞操作
+ * 2. 调用 native 方法
+ * 3. FFM API 的 Linker
+ *
+ * 解决：
+ * - 用 ReentrantLock 替代 synchronized
+ * - JDK 24+ 已移除大部分 pinning 问题
+ *
+ * =============== 与 JDK 25 的关系 ===============
+ *
+ * JDK 25 中虚拟线程更加成熟，配合：
+ * - 结构化并发（JEP 505）：管理多个虚拟线程的生命周期
+ * - 作用域值（JEP 506）：替代 ThreadLocal
+ * - 见 StructuredConcurrency.java、ScopedValues.java
+ */
