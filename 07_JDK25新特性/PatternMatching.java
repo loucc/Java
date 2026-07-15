@@ -57,39 +57,39 @@ public class PatternMatching {
 
         // ============ 4. Record Pattern（记录解构）============
         System.out.println("\n========== 记录解构 ==========");
-        Object p = new Point(3, 4);
-        Object l = new Line(new Point(0, 0), new Point(5, 5));
+        Object p = new PatternPoint(3, 4);
+        Object l = new PatternLine(new PatternPoint(0, 0), new PatternPoint(5, 5));
 
         // 传统写法：instanceof 后逐层 getter
-        if (p instanceof Point pp) {
+        if (p instanceof PatternPoint pp) {
             System.out.println("传统: (" + pp.x() + ", " + pp.y() + ")");
         }
 
         // 记录解构：直接提取字段
-        if (p instanceof Point(int px, int py)) {
+        if (p instanceof PatternPoint(int px, int py)) {
             System.out.println("解构: (" + px + ", " + py + ")");
         }
 
         // 嵌套解构
-        if (l instanceof Line(Point(int x1, int y1), Point(int x2, int y2))) {
+        if (l instanceof PatternLine(PatternPoint(int x1, int y1), PatternPoint(int x2, int y2))) {
             System.out.println("Line 解构: (" + x1 + "," + y1 + ") → (" + x2 + "," + y2 + ")");
         }
 
         // 在 switch 中使用
-        System.out.println("面积: " + area(new MyCircle(5)));
-        System.out.println("面积: " + area(new MySquare(4)));
+        System.out.println("面积: " + area(new PatternCircle(5)));
+        System.out.println("面积: " + area(new PatternSquare(4)));
 
         // ============ 5. Guarded Pattern（守卫模式，when） ============
         System.out.println("\n========== 守卫模式 ==========");
-        Object[] items = { 5, -3, "abc", "hello world", new Point(1, 2), new Point(0, 0) };
+        Object[] items = { 5, -3, "abc", "hello world", new PatternPoint(1, 2), new PatternPoint(0, 0) };
         for (Object item : items) {
             System.out.println(item + " → " + classify(item));
         }
 
         // ============ 6. sealed + 模式匹配（穷尽性）============
         System.out.println("\n========== sealed + 穷尽性 ==========");
-        Shape[] shapes = { new MyCircle(3), new MySquare(4), new Triangle(3, 4) };
-        for (Shape s : shapes) {
+        PatternShape[] shapes = { new PatternCircle(3), new PatternSquare(4), new PatternTriangle(3, 4) };
+        for (PatternShape s : shapes) {
             System.out.println(describeShape(s));
         }
     }
@@ -119,11 +119,11 @@ public class PatternMatching {
     }
 
     // 记录解构 + switch
-    static double area(Shape s) {
+    static double area(PatternShape s) {
         return switch (s) {
-            case MyCircle(double r) -> Math.PI * r * r;
-            case MySquare(double side) -> side * side;
-            case Triangle(double b, double h) -> 0.5 * b * h;
+            case PatternCircle(double r) -> Math.PI * r * r;
+            case PatternSquare(double side) -> side * side;
+            case PatternTriangle(double b, double h) -> 0.5 * b * h;
         };
     }
 
@@ -136,30 +136,30 @@ public class PatternMatching {
             case String s when s.isBlank() -> "空白字符串";
             case String s when s.length() > 5 -> "长字符串";
             case String s -> "短字符串";
-            case Point(int x, int y) when x == 0 && y == 0 -> "原点";
-            case Point p -> "点";
+            case PatternPoint(int x, int y) when x == 0 && y == 0 -> "原点";
+            case PatternPoint p -> "点";
             default -> "未知";
         };
     }
 
     // sealed + switch，编译器强制穷尽
-    static String describeShape(Shape s) {
+    static String describeShape(PatternShape s) {
         return switch (s) {
-            case MyCircle c -> "圆：半径 " + c.r();
-            case MySquare sq -> "正方形：边长 " + sq.side();
-            case Triangle t -> "三角形：底 " + t.base() + " 高 " + t.height();
+            case PatternCircle c -> "圆：半径 " + c.r();
+            case PatternSquare sq -> "正方形：边长 " + sq.side();
+            case PatternTriangle t -> "三角形：底 " + t.base() + " 高 " + t.height();
             // 不需要 default！sealed 已确保覆盖所有子类
         };
     }
 }
 
-record Point(int x, int y) {}
-record Line(Point start, Point end) {}
+record PatternPoint(int x, int y) {}
+record PatternLine(PatternPoint start, PatternPoint end) {}
 
-sealed interface Shape permits MyCircle, MySquare, Triangle {}
-record MyCircle(double r) implements Shape {}
-record MySquare(double side) implements Shape {}
-record Triangle(double base, double height) implements Shape {}
+sealed interface PatternShape permits PatternCircle, PatternSquare, PatternTriangle {}
+record PatternCircle(double r) implements PatternShape {}
+record PatternSquare(double side) implements PatternShape {}
+record PatternTriangle(double base, double height) implements PatternShape {}
 
 /*
  * =============== 模式匹配的目的 ===============

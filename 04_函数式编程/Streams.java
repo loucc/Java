@@ -47,7 +47,7 @@ public class Streams {
         List<Integer> nums = List.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         List<Integer> evens = nums.stream()
             .filter(n -> n % 2 == 0)
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("偶数: " + evens);
 
         // ============ 3. map：映射转换 ============
@@ -55,13 +55,13 @@ public class Streams {
         List<String> words = List.of("apple", "banana", "cherry");
         List<String> upper = words.stream()
             .map(String::toUpperCase)
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("大写: " + upper);
 
         // map 改变元素类型
         List<Integer> lengths = words.stream()
             .map(String::length)
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("长度: " + lengths);
 
         // ============ 4. flatMap：扁平化 ============
@@ -73,14 +73,14 @@ public class Streams {
         );
         List<Integer> flat = nested.stream()
             .flatMap(List::stream)
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("扁平化: " + flat);
 
         // 分词
         List<String> sentences = List.of("Hello World", "Java Streams");
         List<String> allWords = sentences.stream()
             .flatMap(s -> Arrays.stream(s.split(" ")))
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("单词: " + allWords);
 
         // ============ 5. sorted：排序 ============
@@ -88,19 +88,19 @@ public class Streams {
         List<Integer> unsorted = List.of(3, 1, 4, 1, 5, 9, 2, 6);
         List<Integer> sorted = unsorted.stream()
             .sorted()
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("升序: " + sorted);
 
         // 降序
         List<Integer> desc = unsorted.stream()
             .sorted(Comparator.reverseOrder())
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("降序: " + desc);
 
         // 自定义排序
         List<String> byLength = words.stream()
             .sorted(Comparator.comparingInt(String::length))
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("按长度排序: " + byLength);
 
         // ============ 6. distinct / limit / skip ============
@@ -108,21 +108,21 @@ public class Streams {
         List<Integer> withDup = List.of(1, 2, 2, 3, 3, 3, 4);
         List<Integer> unique = withDup.stream()
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("去重: " + unique);
 
         List<Integer> first3 = nums.stream()
             .limit(3)
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("前3个: " + first3);
 
         List<Integer> skip3 = nums.stream()
             .skip(3)
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("跳过3个: " + skip3);
 
         // 分页：跳过前2页，取3个
-        List<Integer> page = nums.stream().skip(4).limit(3).collect(Collectors.toList());
+        List<Integer> page = nums.stream().skip(4).limit(3).toList();
         System.out.println("分页: " + page);
 
         // ============ 7. peek：查看流中元素（调试用） ============
@@ -133,12 +133,12 @@ public class Streams {
             .map(n -> n * 2)
             .peek(n -> System.out.println("映射后: " + n))
             .limit(3)
-            .collect(Collectors.toList());
+            .toList();
         System.out.println("最终: " + result);
 
         // ============ 8. 终结操作：收集 collect ============
         System.out.println("\n========== collect ==========");
-        List<Integer> toList = nums.stream().filter(n -> n > 5).collect(Collectors.toList());
+        List<Integer> toList = nums.stream().filter(n -> n > 5).toList();
         Set<Integer> toSet = nums.stream().collect(Collectors.toSet());
         Map<Integer, Integer> toMap = nums.stream()
             .collect(Collectors.toMap(n -> n, n -> n * n));
@@ -210,8 +210,10 @@ public class Streams {
         System.out.println("最大: " + intMax);
 
         // 装箱与拆箱
-        IntStream.rangeClosed(1, 5).boxed().collect(Collectors.toList());
-        List.of(1, 2, 3).stream().mapToInt(Integer::intValue).sum();
+        List<Integer> boxed = IntStream.rangeClosed(1, 5).boxed().toList();   // IntStream → Stream<Integer>
+        System.out.println("装箱结果: " + boxed);
+        int unboxedSum = List.of(1, 2, 3).stream().mapToInt(Integer::intValue).sum();  // Stream<Integer> → IntStream
+        System.out.println("拆箱求和: " + unboxedSum);
 
         // ============ 12. 并行流（parallelStream） ============
         System.out.println("\n========== 并行流 ==========");

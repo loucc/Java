@@ -98,19 +98,19 @@ public class Reflection {
 
         // 无参构造
         Class<?> c = Employee2.class;
-        Constructor<?> emptyCtor = c.getDeclaredConstructor();
+        java.lang.reflect.Constructor<?> emptyCtor = c.getDeclaredConstructor();
         emptyCtor.setAccessible(true);
         Object e1 = emptyCtor.newInstance();
         System.out.println("无参: " + e1);
 
         // 有参构造
-        Constructor<?> ctor = c.getConstructor(String.class, int.class, double.class);
+        java.lang.reflect.Constructor<?> ctor = c.getConstructor(String.class, int.class, double.class);
         Object e2 = ctor.newInstance("王五", 30, 20000.0);
         System.out.println("有参: " + e2);
 
         // ============ 6. 反射获取泛型信息 ============
         System.out.println("\n========== 泛型信息 ==========");
-        Field listField = Container.class.getDeclaredField("items");
+        Field listField = ReflectionContainer.class.getDeclaredField("items");
         Type genericType = listField.getGenericType();
         System.out.println("字段泛型: " + genericType);
 
@@ -198,7 +198,7 @@ class Employee2 {
     }
 }
 
-class Container {
+class ReflectionContainer {
     private List<String> items;
 }
 
@@ -273,7 +273,7 @@ class SimpleMain {
  *
  * =============== 反射的缺点 ===============
  *
- * 1. 性能损耗（比直接调用慢 10-100 倍）
+ * 1. 可能有额外调用与访问检查开销；实际影响应使用 JMH 在目标场景测量
  * 2. 破坏封装（setAccessible）
  * 3. 编译时无法检查
  * 4. 增加代码复杂度

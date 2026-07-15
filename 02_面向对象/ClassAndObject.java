@@ -52,7 +52,7 @@ public class ClassAndObject {
         s5.name = "张三";
         s5.age = 20;
         System.out.println("\ns1 == s5: " + (s1 == s5));       // false，不同对象
-        // equals 默认是 == 比较，除非重写（详见 12_Inheritance.java）
+        // equals 默认是 == 比较，除非重写（详见 Inheritance.java）
     }
 }
 

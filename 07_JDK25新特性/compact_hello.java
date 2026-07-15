@@ -11,7 +11,8 @@ void main() {
     greet("Java 25");
     greet("学习者");
 
-    var list = java.util.List.of(1, 2, 3, 4, 5);
+    // 紧凑源文件（JEP 512）自动导入 java.base 模块，List/Map 等可直接用，无需 import
+    var list = List.of(1, 2, 3, 4, 5);
     int sum = 0;
     for (int i : list) sum += i;
     System.out.println("Sum: " + sum);

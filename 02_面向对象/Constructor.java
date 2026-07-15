@@ -46,7 +46,8 @@ class Person {
     public Person() {
         System.out.println("[无参构造]");
         // 使用 this() 调用其他构造器
-        // 注意：this() 必须是第一条语句
+        // 注意：JDK 25 前 this() 必须是第一条语句；JDK 25 起 JEP 513 放宽限制，
+        //       允许在 this()/super() 之前放置校验或预处理代码（详见 07_JDK25新特性/FlexibleConstructor.java）
         // this("匿名", 0, "未知");
     }
 

@@ -27,7 +27,7 @@ public class ThreadPool {
             final int taskId = i;
             fixed.submit(() -> {
                 System.out.println(Thread.currentThread().getName() + " 执行任务 " + taskId);
-                try { Thread.sleep(50); } catch (InterruptedException e) {}
+                try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             });
         }
         fixed.shutdown();
@@ -62,13 +62,8 @@ public class ThreadPool {
             4,                                      // maximumPoolSize：最大线程数
             60L, TimeUnit.SECONDS,                  // keepAliveTime：非核心线程空闲时间
             new LinkedBlockingQueue<>(10),          // workQueue：任务队列
-            new ThreadFactory() {                   // threadFactory：线程工厂
-                private int count = 0;
-                @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "my-pool-" + (++count));
-                }
-            },
+            // JDK 21+ 推荐用 Thread.ofPlatform().name(prefix, start).factory() 替代匿名内部类
+            Thread.ofPlatform().name("my-pool-", 1).factory(),
             new ThreadPoolExecutor.AbortPolicy()    // handler：拒绝策略
         );
 
@@ -76,7 +71,7 @@ public class ThreadPool {
             final int id = i;
             pool.execute(() -> {
                 System.out.println(Thread.currentThread().getName() + " 执行任务 " + id);
-                try { Thread.sleep(100); } catch (InterruptedException e) {}
+                try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             });
         }
         pool.shutdown();

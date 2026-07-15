@@ -85,8 +85,8 @@ public class Lambda {
         Consumer<String> printer = s -> System.out.println("打印: " + s);
         printer.accept("hi");
 
-        // Supplier<T>: () -> T
-        Supplier<Double> random = () -> Math.random();
+        // Supplier<T>: () -> T（无参单方法调用可用方法引用）
+        Supplier<Double> random = Math::random;
         System.out.println("随机数: " + random.get());
 
         // ============ 4. 方法引用（Lambda 的进一步简化） ============

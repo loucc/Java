@@ -2,7 +2,10 @@ import java.util.function.*;
 import java.util.List;
 
 /**
- * FunctionalInterface.java - 函数式接口
+ * FunctionalInterfaceDemo.java - 函数式接口
+ * <p>
+ * 注：类名特意改为 FunctionalInterfaceDemo，避免与 java.lang.FunctionalInterface 注解同名
+ *     导致同目录其他文件使用 @FunctionalInterface 时被遮蔽。
  * <p>
  * 学习要点：
  * 1. @FunctionalInterface 注解
@@ -11,7 +14,7 @@ import java.util.List;
  * 4. 各种基本类型专用函数式接口
  * 5. BiFunction 系列
  */
-public class FunctionalInterface {
+public class FunctionalInterfaceDemo {
 
     public static void main(String[] args) {
 
@@ -149,13 +152,12 @@ public class FunctionalInterface {
         return op.apply(a, b);
     }
 
-    // 更复杂：接受过滤器和转换器
+    // 接受过滤器与转换器，用 Stream 内部迭代实现（函数式风格）
     static void printFiltered(List<String> list, Predicate<String> filter, Function<String, String> mapper) {
-        for (String s : list) {
-            if (filter.test(s)) {
-                System.out.println(mapper.apply(s));
-            }
-        }
+        list.stream()
+            .filter(filter)
+            .map(mapper)
+            .forEach(System.out::println);
     }
 }
 

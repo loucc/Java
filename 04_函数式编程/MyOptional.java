@@ -105,10 +105,10 @@ public class MyOptional {
         System.out.println("链式: " + result);
 
         // flatMap 用于避免嵌套 Optional
-        Optional<String> data = findUser(1).flatMap(User::getEmail);
+        Optional<String> data = findUser(1).flatMap(OptionalUser::getEmail);
         System.out.println("邮箱: " + data.orElse("无"));
 
-        Optional<String> nodata = findUser(999).flatMap(User::getEmail);
+        Optional<String> nodata = findUser(999).flatMap(OptionalUser::getEmail);
         System.out.println("邮箱: " + nodata.orElse("用户不存在"));
 
         // ============ 6. filter 过滤 ============
@@ -130,10 +130,10 @@ public class MyOptional {
             .toList();
         System.out.println("过滤后长度: " + lens);
 
-        // or - 空时提供另一个 Optional
+        // or - 空时提供另一个 Optional（避免裸 get()，用 orElse 解包）
         Optional<String> a = Optional.<String>empty()
             .or(() -> Optional.of("备用值"));
-        System.out.println("or: " + a.get());
+        System.out.println("or: " + a.orElse("(无)"));
 
         // ============ 8. 反例：常见误用 ============
         System.out.println("\n========== 反例 ==========");
@@ -176,27 +176,27 @@ public class MyOptional {
         // }
 
         // Optional 写法：
-        User u = new User("李四", "li@example.com");
+        OptionalUser u = new OptionalUser("李四", "li@example.com");
         String city = Optional.of(u)
-            .flatMap(User::getEmail)
+            .flatMap(OptionalUser::getEmail)
             .map(String::toUpperCase)
             .orElse("无邮箱");
         System.out.println("邮箱大写: " + city);
     }
 
     // 模拟数据源
-    static Optional<User> findUser(int id) {
-        if (id == 1) return Optional.of(new User("张三", "zhang@example.com"));
-        if (id == 2) return Optional.of(new User("李四", null));
+    static Optional<OptionalUser> findUser(int id) {
+        if (id == 1) return Optional.of(new OptionalUser("张三", "zhang@example.com"));
+        if (id == 2) return Optional.of(new OptionalUser("李四", null));
         return Optional.empty();
     }
 }
 
-class User {
+class OptionalUser {
     private String name;
     private String email;
 
-    public User(String name, String email) {
+    public OptionalUser(String name, String email) {
         this.name = name;
         this.email = email;
     }

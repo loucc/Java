@@ -39,44 +39,39 @@ public class PrimitivePatterns {
 
         checkNarrowing(100L);
         checkNarrowing(Long.MAX_VALUE);
+
+        // ============ record 解构原生类型 ============
+        System.out.println("\n========== record 解构 ==========");
+        describePos(new Position(3, 5));
     }
 
-    // 使用原生类型模式匹配（示意用法）
+    // 使用原生类型模式匹配（需 --enable-preview）
     static void demonstrate() {
         Object o = 42;
 
-        // 传统写法（JDK 21）
+        // 传统写法（JDK 21）：instanceof 只能匹配包装类型 Integer
         if (o instanceof Integer i) {
             int val = i;
             System.out.println("传统: " + val);
         }
 
-        // JDK 25 预览：直接用 int
-        // if (o instanceof int i) {              // 需要 --enable-preview
-        //     System.out.println("原生模式: " + i);
-        // }
+        // JDK 25 预览：直接用基本类型 int 匹配（无需拆箱）
+        if (o instanceof int i) {
+            System.out.println("原生模式: " + i);
+        }
 
-        // switch 的原生类型模式（预览）
-        // String desc = switch (o) {
-        //     case int i    -> "int: " + i;
-        //     case long l   -> "long: " + l;
-        //     case double d -> "double: " + d;
-        //     case String s -> "str: " + s;
-        //     default       -> "other";
-        // };
-
-        // 目前非预览环境下的等价写法：
+        // switch 的原生类型模式（预览）：case 后可直接用基本类型
         String desc = switch (o) {
-            case Integer i -> "int: " + i;
-            case Long l -> "long: " + l;
-            case Double d -> "double: " + d;
+            case int i    -> "int: " + i;
+            case long l   -> "long: " + l;
+            case double d -> "double: " + d;
             case String s -> "str: " + s;
-            default -> "other";
+            default       -> "other";
         };
         System.out.println(desc);
     }
 
-    // 精度检查示例
+    // 精度检查示例：long → int 的值域安全转换
     static void checkNarrowing(long value) {
         System.out.println("检查 long 值: " + value);
 
@@ -88,22 +83,23 @@ public class PrimitivePatterns {
             System.out.println("  超出 int 范围");
         }
 
-        // JDK 25 预览：只有值在 int 范围内才匹配
-        // if (value instanceof int i) {
-        //     System.out.println("  安全转 int: " + i);
-        // } else {
-        //     System.out.println("  溢出，不匹配");
-        // }
+        // JDK 25 预览：只有值在 int 范围内才匹配（编译器做值域检查，避免溢出）
+        if (value instanceof int i) {
+            System.out.println("  安全转 int: " + i);
+        } else {
+            System.out.println("  溢出，不匹配");
+        }
     }
 
-    // 使用记录 + 原生类型解构（示意）
-    // record Position(int x, int y) {}
-    //
-    // static void describePos(Object obj) {
-    //     if (obj instanceof Position(int x, int y)) {   // 直接解构成 int
-    //         System.out.println("位置: " + x + ", " + y);
-    //     }
-    // }
+    // record 解构中使用原生类型（预览）：组件直接绑定为 int
+    record Position(int x, int y) {}
+
+    static void describePos(Object obj) {
+        // 直接解构成 int，无需 Integer 包装
+        if (obj instanceof Position(int x, int y)) {
+            System.out.println("位置: " + x + ", " + y);
+        }
+    }
 }
 
 /*

@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
@@ -47,7 +48,7 @@ public class FileIO {
         try (FileOutputStream fos = new FileOutputStream("/tmp/bytes.txt")) {
             fos.write(72);                     // 写单个字节 H
             fos.write("ello\n".getBytes());    // 写字节数组
-            fos.write("你好\n".getBytes("UTF-8"));
+            fos.write("你好\n".getBytes(StandardCharsets.UTF_8));
             System.out.println("字节写入完成");
         }
 
@@ -56,7 +57,7 @@ public class FileIO {
         try (FileInputStream fis = new FileInputStream("/tmp/bytes.txt")) {
             byte[] buffer = new byte[1024];
             int n = fis.read(buffer);
-            String content = new String(buffer, 0, n, "UTF-8");
+            String content = new String(buffer, 0, n, StandardCharsets.UTF_8);
             System.out.println("读取内容: " + content);
         }
 
@@ -103,14 +104,14 @@ public class FileIO {
         // 写入时指定 UTF-8
         try (BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(
-                    new FileOutputStream("/tmp/utf8.txt"), "UTF-8"))) {
+                    new FileOutputStream("/tmp/utf8.txt"), StandardCharsets.UTF_8))) {
             bw.write("UTF-8 编码测试：中文字符");
         }
 
         // 读取时指定 UTF-8
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(
-                    new FileInputStream("/tmp/utf8.txt"), "UTF-8"))) {
+                    new FileInputStream("/tmp/utf8.txt"), StandardCharsets.UTF_8))) {
             System.out.println("读取: " + br.readLine());
         }
 
@@ -239,8 +240,8 @@ class Employee implements Serializable {
  * =============== 使用建议 ===============
  *
  * 1. 文本文件用字符流，二进制文件用字节流
- * 2. 一定要用缓冲流（Buffered），性能差异巨大
- * 3. 一定要用 try-with-resources 关闭
+ * 2. 频繁小块读写时考虑缓冲流；Files 等高层 API 可能已处理缓冲
+ * 3. 自己打开的可关闭资源优先用 try-with-resources
  * 4. 显式指定字符编码（如 UTF-8）
  * 5. 现代代码优先用 java.nio.file.Files（详见 NIO.java）
  * 6. 序列化考虑安全性（避免不可信数据）

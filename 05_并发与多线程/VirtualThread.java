@@ -134,7 +134,7 @@ public class VirtualThread {
         System.out.println("\n========== 使用建议 ==========");
         System.out.println("适合虚拟线程：IO 密集 (HTTP、数据库、文件)");
         System.out.println("不适合虚拟线程：CPU 密集 (计算)");
-        System.out.println("避免：synchronized 长时间持有（会 pin 平台线程）");
+        System.out.println("注意：native/外部函数调用仍可能 pin 载体线程");
     }
 }
 
@@ -143,15 +143,15 @@ public class VirtualThread {
  *
  * 虚拟线程（Virtual Thread）是 JDK 21 引入的正式特性（JEP 444）：
  * - 由 JVM 管理，不是 1:1 映射到操作系统线程
- * - 极其轻量：每个只有几百字节，可创建百万个
+ * - 比平台线程轻量得多，可按任务创建；实际容量取决于任务状态和可用内存
  * - 面向 IO 阻塞场景优化
  *
  * =============== 虚拟线程 vs 平台线程 ===============
  *
  *                  平台线程                虚拟线程
  * 实现             OS 线程（重）           JVM 管理（轻）
- * 内存             ~1MB 栈                 几百字节
- * 数量             通常几百到几千          可以百万级
+ * 内存             OS 栈开销较大            按需增长的堆栈块
+ * 数量             受 OS 线程资源限制        通常可支持更高并发量
  * 创建成本         高                      极低
  * 上下文切换       内核态                  用户态
  * 使用场景         CPU 密集                IO 密集
@@ -191,20 +191,15 @@ public class VirtualThread {
  * - 消息队列消费者
  *
  * ❌ 不适合：
- * - CPU 密集型计算（用平台线程或 ForkJoinPool）
- * - 长时间持有 synchronized 锁（用 ReentrantLock）
+ * - 把虚拟线程当作提升 CPU 密集计算速度的工具
  * - 使用 ThreadLocal 存大量数据（考虑 ScopedValue）
  *
- * =============== Pinning 问题（避免） ===============
+ * =============== Pinning 问题 ===============
  *
- * 虚拟线程在以下情况会 pin 到平台线程（无法 unmount）：
- * 1. synchronized 块中执行阻塞操作
- * 2. 调用 native 方法
- * 3. FFM API 的 Linker
- *
- * 解决：
- * - 用 ReentrantLock 替代 synchronized
- * - JDK 24+ 已移除大部分 pinning 问题
+ * 从 JDK 24（JEP 491）起，在 synchronized 块中阻塞不再因为监视器而 pin。
+ * 某些 native 调用或外部函数调用期间，虚拟线程仍可能 pin 到载体线程。
+ * 不要仅为了虚拟线程把 synchronized 机械替换成 ReentrantLock；应先通过
+ * JFR 的 jdk.VirtualThreadPinned 事件定位真实问题。
  *
  * =============== 与 JDK 25 的关系 ===============
  *

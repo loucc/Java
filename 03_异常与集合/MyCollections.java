@@ -35,7 +35,7 @@ public class MyCollections {
         arrayList.remove(0);                    // 按索引删除
         System.out.println("删除后: " + arrayList);
 
-        // LinkedList：链表实现，插入删除快，随机访问慢
+        // LinkedList：链表实现，已定位节点处的插入删除是 O(1)，随机访问是 O(n)
         LinkedList<Integer> linkedList = new LinkedList<>();
         linkedList.add(1);
         linkedList.add(2);
@@ -45,12 +45,12 @@ public class MyCollections {
         System.out.println("first: " + linkedList.getFirst());
         System.out.println("last: " + linkedList.getLast());
 
-        // Vector：线程安全的 ArrayList，性能差，几乎已废弃
+        // Vector：遗留的同步动态数组；新代码通常按需求选择 ArrayList 或并发集合
 
         // ============ 2. Set 集合（无序，不重复） ============
         System.out.println("\n========== Set ==========");
 
-        // HashSet：哈希表实现，无序，最快
+        // HashSet：哈希表实现，不保证迭代顺序；常见操作平均 O(1)
         Set<String> hashSet = new HashSet<>();
         hashSet.add("apple");
         hashSet.add("banana");
@@ -180,7 +180,7 @@ public class MyCollections {
 
         // 方式五：Stream（详见 Streams.java）
         System.out.print("Stream: ");
-        list.stream().forEach(s -> System.out.print(s + " "));
+        list.forEach(s -> System.out.print(s + " "));
         System.out.println();
 
         // ============ 6. Map 的遍历 ============
@@ -211,8 +211,8 @@ public class MyCollections {
         List<String> l2 = new ArrayList<>(l1);          // 可变列表
         System.out.println("数组转 List: " + l2);
 
-        // List → Array
-        String[] arr2 = l2.toArray(new String[0]);
+        // List → Array（JDK 11+ 推荐用 IntFunction 重载，更直观）
+        String[] arr2 = l2.toArray(String[]::new);
         System.out.println("List 转数组: " + Arrays.toString(arr2));
 
         // List → Set (去重)

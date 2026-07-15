@@ -10,14 +10,12 @@
  * 注意：模块导入声明是 JDK 25 正式特性，无需预览标志。
  */
 
-// 传统写法：需要逐个 import 具体的类或包
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.HashMap;
+// JDK 25 新写法（JEP 511）：一行导入整个模块的所有导出类型
+// 等价于导入了 java.util.*、java.io.*、java.lang.*、java.time.* 等所有 java.base 导出包
+import module java.base;
 
-// JDK 25 新写法：一次导入整个模块的所有可导出内容
-// import module java.base;   // 会导入 java.util.*、java.io.* 等
+// 也可与普通 import 混用（需要某些非 java.base 的类型时）
+// import java.util.stream.Collectors;
 
 public class ModuleImport {
 

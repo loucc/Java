@@ -30,32 +30,32 @@ public class CollectionsUtil {
 
         // ============ 2. Comparable 自然排序 ============
         System.out.println("\n========== Comparable ==========");
-        List<Student> students = new ArrayList<>(List.of(
-            new Student("张三", 85),
-            new Student("李四", 92),
-            new Student("王五", 78)
+        List<ComparableStudent> students = new ArrayList<>(List.of(
+            new ComparableStudent("张三", 85),
+            new ComparableStudent("李四", 92),
+            new ComparableStudent("王五", 78)
         ));
 
-        Collections.sort(students);                 // 使用 Student 的自然顺序（按成绩升序）
+        Collections.sort(students);                 // 使用 ComparableStudent 的自然顺序（按成绩升序）
         System.out.println("按成绩排序:");
         students.forEach(System.out::println);
 
         // ============ 3. Comparator 自定义排序 ============
         System.out.println("\n========== Comparator ==========");
         // 按名字排序
-        Collections.sort(students, Comparator.comparing(Student::getName));
+        Collections.sort(students, Comparator.comparing(ComparableStudent::getName));
         System.out.println("按名字排序:");
         students.forEach(System.out::println);
 
         // 按成绩降序
-        Collections.sort(students, Comparator.comparingInt(Student::getScore).reversed());
+        Collections.sort(students, Comparator.comparingInt(ComparableStudent::getScore).reversed());
         System.out.println("按成绩降序:");
         students.forEach(System.out::println);
 
         // 组合排序：先按成绩降序，再按名字升序
-        Comparator<Student> comparator = Comparator
-            .comparingInt(Student::getScore).reversed()
-            .thenComparing(Student::getName);
+        Comparator<ComparableStudent> comparator = Comparator
+            .comparingInt(ComparableStudent::getScore).reversed()
+            .thenComparing(ComparableStudent::getName);
         Collections.sort(students, comparator);
         System.out.println("组合排序:");
         students.forEach(System.out::println);
@@ -155,11 +155,11 @@ public class CollectionsUtil {
 }
 
 // ============ 实现 Comparable（自然排序） ============
-class Student implements Comparable<Student> {
+class ComparableStudent implements Comparable<ComparableStudent> {
     private String name;
     private int score;
 
-    public Student(String name, int score) {
+    public ComparableStudent(String name, int score) {
         this.name = name;
         this.score = score;
     }
@@ -169,7 +169,7 @@ class Student implements Comparable<Student> {
 
     // 定义自然顺序：按成绩升序
     @Override
-    public int compareTo(Student other) {
+    public int compareTo(ComparableStudent other) {
         return Integer.compare(this.score, other.score);
         // 或：return this.score - other.score;（可能溢出）
     }

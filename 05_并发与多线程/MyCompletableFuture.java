@@ -150,11 +150,11 @@ public class MyCompletableFuture {
         System.out.println("\n========== 手动完成 ==========");
         CompletableFuture<String> manual = new CompletableFuture<>();
 
-        // 另一个线程完成
-        new Thread(() -> {
+        // 用虚拟线程完成（JDK 21+，契合现代异步主题，避免直接 new Thread()）
+        Thread.startVirtualThread(() -> {
             sleep(100);
             manual.complete("手动结果");
-        }).start();
+        });
 
         System.out.println("等待手动完成: " + manual.get());
 
@@ -230,7 +230,7 @@ public class MyCompletableFuture {
     }
 
     static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException e) {}
+        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }
 

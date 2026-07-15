@@ -33,7 +33,7 @@ java --enable-preview --source 25 文件名.java
 | 03 | `Operators.java` | 算术、比较、逻辑、位运算、三元运算符 |
 | 04 | `ControlFlow.java` | if/else、switch语句、switch表达式 |
 | 05 | `Loops.java` | for、while、do-while、增强for、break/continue |
-| 06 | `Arrays.java` | 一维/二维数组、Arrays工具类 |
+| 06 | `MyArrays.java` | 一维/二维数组、Arrays工具类 |
 | 07 | `Strings.java` | String、StringBuilder、StringBuffer、常用API |
 | 08 | `TextBlocks.java` | 文本块（JDK 15+） |
 
@@ -50,8 +50,8 @@ java --enable-preview --source 25 文件名.java
 | 14 | `AbstractClass.java` | 抽象类、抽象方法 |
 | 15 | `Interface.java` | 接口、default方法、静态方法、私有方法 |
 | 16 | `InnerClass.java` | 成员内部类、静态内部类、匿名内部类 |
-| 17 | `Enum.java` | 枚举类、枚举方法 |
-| 18 | `Record.java` | 记录类(JDK 14+) |
+| 17 | `MyEnum.java` | 枚举类、枚举方法 |
+| 18 | `MyRecord.java` | 记录类(JDK 14+) |
 | 19 | `SealedClass.java` | 密封类(JDK 17+) |
 
 ### 第三阶段：异常与集合 (03_异常与集合)
@@ -59,9 +59,9 @@ java --enable-preview --source 25 文件名.java
 
 | 序号 | 文件 | 主要内容 |
 |-----|------|---------|
-| 20 | `Exception.java` | try-catch-finally、自定义异常、try-with-resources |
+| 20 | `MyException.java` | try-catch-finally、自定义异常、try-with-resources |
 | 21 | `Generics.java` | 泛型类、泛型方法、通配符、上下界 |
-| 22 | `Collections.java` | List、Set、Map、Queue完整介绍 |
+| 22 | `MyCollections.java` | List、Set、Map、Queue完整介绍 |
 | 23 | `CollectionsUtil.java` | Collections工具类、不可变集合 |
 
 ### 第四阶段：函数式编程 (04_函数式编程)
@@ -70,19 +70,19 @@ java --enable-preview --source 25 文件名.java
 | 序号 | 文件 | 主要内容 |
 |-----|------|---------|
 | 24 | `Lambda.java` | Lambda表达式、方法引用 |
-| 25 | `FunctionalInterface.java` | 函数式接口、内置函数式接口 |
+| 25 | `FunctionalInterfaceDemo.java` | 函数式接口、内置函数式接口 |
 | 26 | `Streams.java` | Stream API、中间操作、终结操作 |
-| 27 | `Optional.java` | Optional的正确使用 |
+| 27 | `MyOptional.java` | Optional的正确使用 |
 
 ### 第五阶段：并发与多线程 (05_并发与多线程)
 > 现代Java并发编程，包括JDK 21+的重大革新。
 
 | 序号 | 文件 | 主要内容 |
 |-----|------|---------|
-| 28 | `Thread.java` | Thread、Runnable、线程生命周期 |
-| 29 | `Synchronized.java` | synchronized、volatile、原子类 |
+| 28 | `MyThread.java` | Thread、Runnable、线程生命周期 |
+| 29 | `MySynchronized.java` | synchronized、volatile、原子类 |
 | 30 | `ThreadPool.java` | Executor、线程池、Future |
-| 31 | `CompletableFuture.java` | 异步编程 |
+| 31 | `MyCompletableFuture.java` | 异步编程 |
 | 32 | `VirtualThread.java` | 虚拟线程(JDK 21+ 重大特性) |
 | 33 | `StructuredConcurrency.java` | 结构化并发(JDK 25) |
 | 34 | `ScopedValues.java` | 作用域值(JDK 25) |
@@ -95,7 +95,7 @@ java --enable-preview --source 25 文件名.java
 | 35 | `DateTime.java` | 日期时间API (java.time) |
 | 36 | `FileIO.java` | 传统IO、字节流、字符流 |
 | 37 | `NIO.java` | NIO.2、Path、Files |
-| 38 | `HttpClient.java` | 现代HTTP客户端(JDK 11+) |
+| 38 | `MyHttpClient.java` | 现代HTTP客户端(JDK 11+) |
 
 ### 第七阶段：JDK 25 新特性 (07_JDK25新特性)
 > 重点掌握JDK 25引入的最新特性。
@@ -113,7 +113,7 @@ java --enable-preview --source 25 文件名.java
 
 | 序号 | 文件 | 主要内容 |
 |-----|------|---------|
-| 44 | `Annotation.java` | 注解、元注解、自定义注解 |
+| 44 | `MyAnnotation.java` | 注解、元注解、自定义注解 |
 | 45 | `Reflection.java` | 反射机制、Class、Method、Field |
 | 46 | `ModuleSystem.java` | 模块系统(JDK 9+) |
 
@@ -138,11 +138,25 @@ JDK 25 是 LTS (长期支持) 版本，2025年9月发布，包含以下重要 JE
 
 ## 学习建议
 
-1. **循序渐进**：严格按照顺序学习，每个知识点都有依赖关系
-2. **动手实践**：每个 `.java` 文件都是可运行的，请亲自编译运行
-3. **修改实验**：修改示例代码，观察运行结果的变化
-4. **查阅官方文档**：https://docs.oracle.com/en/java/javase/25/
-5. **建立笔记**：将每个知识点的心得记录下来
+1. **按阶段学习**：基础阶段建议按顺序，熟悉语法后可按主题选择
+2. **先预测再运行**：运行前写下输出、异常或编译结果，再与实际结果比较
+3. **主动修改**：每个示例至少改变一个输入、删除一行或制造一个失败场景
+4. **解释原因**：不要只记 API；尝试说明编译器、JVM 或类库为什么这样表现
+5. **间隔复习**：隔天不看源码重写关键示例，再用原文件核对遗漏
+6. **查阅一手资料**：遇到边界问题时核对 Javadoc、JLS 和对应 JEP
+
+建议每章为示例补三个问题：
+
+- 这段代码在编译期和运行期分别发生什么？
+- 改变哪个条件会让结果不同或失败？
+- 这个 API 的适用边界和常见误用是什么？
+
+可用下面的命令检查所有示例是否仍能在 JDK 25 编译（预览参数对普通源码无害）：
+
+```bash
+find . -name '*.java' -print0 | xargs -0 -n1 javac --enable-preview --release 25 -Xlint:all
+find . -name '*.class' -delete
+```
 
 ## 参考资源
 

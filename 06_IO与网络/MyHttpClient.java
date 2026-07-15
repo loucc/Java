@@ -1,8 +1,10 @@
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.Map;
@@ -75,7 +77,7 @@ public class MyHttpClient {
         System.out.println("\n========== POST 表单 ==========");
         Map<String, String> form = Map.of("username", "test", "password", "123456");
         String formData = form.entrySet().stream()
-            .map(e -> e.getKey() + "=" + java.net.URLEncoder.encode(e.getValue(), "UTF-8"))
+            .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
             .reduce((a, b) -> a + "&" + b)
             .orElse("");
 

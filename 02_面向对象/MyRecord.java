@@ -1,7 +1,7 @@
 import java.util.List;
 
 /**
- * Record.java - 记录类（JDK 14+ 正式特性）
+ * MyRecord.java - 记录类（JDK 14+ 正式特性）
  * <p>
  * 学习要点：
  * 1. record 的定义（简洁的不可变数据类）
@@ -47,24 +47,24 @@ public class MyRecord {
 
         // ============ 3. 自定义方法 ============
         System.out.println("\n========== 自定义方法 ==========");
-        Rectangle rect = new Rectangle(4, 5);
+        RectShape rect = new RectShape(4, 5);
         System.out.println("矩形: " + rect);
         System.out.println("面积: " + rect.area());
         System.out.println("周长: " + rect.perimeter());
 
         // 静态方法
-        Rectangle square = Rectangle.square(5);
+        RectShape square = RectShape.square(5);
         System.out.println("正方形: " + square);
 
         // ============ 4. 实现接口 ============
         System.out.println("\n========== 实现接口 ==========");
-        Circle circle = new Circle(3);
+        CircleShape circle = new CircleShape(3);
         System.out.println("圆的面积: " + circle.area());
 
         // ============ 5. record 嵌套（表达复杂数据） ============
         System.out.println("\n========== 嵌套 record ==========");
         Address addr = new Address("北京", "海淀区", "中关村大街");
-        Person person = new Person("张三", 25, addr);
+        PersonInfo person = new PersonInfo("张三", 25, addr);
         System.out.println(person);
 
         // ============ 6. 局部 record（在方法内定义） ============
@@ -126,10 +126,10 @@ record Range(int min, int max) {
 }
 
 // ============ 3. 添加自定义方法和静态方法 ============
-record Rectangle(double width, double height) {
+record RectShape(double width, double height) {
 
     // 紧凑构造器
-    public Rectangle {
+    public RectShape {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("宽高必须为正数");
         }
@@ -145,12 +145,12 @@ record Rectangle(double width, double height) {
     }
 
     // 静态工厂方法
-    public static Rectangle square(double side) {
-        return new Rectangle(side, side);
+    public static RectShape square(double side) {
+        return new RectShape(side, side);
     }
 
     // 静态常量
-    public static final Rectangle UNIT = new Rectangle(1, 1);
+    public static final RectShape UNIT = new RectShape(1, 1);
 }
 
 // ============ 4. record 实现接口 ============
@@ -158,7 +158,7 @@ interface Shape2 {
     double area();
 }
 
-record Circle(double radius) implements Shape2 {
+record CircleShape(double radius) implements Shape2 {
     // 覆盖：默认 record 也生成 public double radius()
 
     @Override
@@ -170,7 +170,7 @@ record Circle(double radius) implements Shape2 {
 // ============ 5. 复合 record ============
 record Address(String city, String district, String street) {}
 
-record Person(String name, int age, Address address) {}
+record PersonInfo(String name, int age, Address address) {}
 
 /*
  * =============== record 的特点 ===============

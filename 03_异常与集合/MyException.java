@@ -42,11 +42,11 @@ public class MyException {
             throw new RuntimeException("模拟异常");
         } catch (RuntimeException e) {
             System.out.println("执行 catch 块: " + e.getMessage());
-            return;                                             // 即使 return，finally 也会执行
         } finally {
             System.out.println("finally 块（一定会执行，用于资源清理）");
         }
-        // System.out.println("这行不会执行");                  // return 后不执行
+        // 注意：catch 中若写 return，finally 仍会在 return 之前执行
+        // （见本文件末尾的 returnFinallyDemo 方法）
 
         // ============ 4. 抛出异常 ============
         System.out.println("\n========== 抛出异常 ==========");
@@ -104,6 +104,24 @@ public class MyException {
         // ============ 8. 常见运行时异常一览 ============
         System.out.println("\n========== 常见异常 ==========");
         showCommonExceptions();
+
+        // ============ 9. catch 中 return，finally 仍会执行 ============
+        System.out.println("\n========== return 与 finally ==========");
+        returnFinallyDemo();
+        System.out.println("returnFinallyDemo 已返回，main 继续");
+    }
+
+    // 演示：catch 中 return，finally 仍会在 return 前执行
+    // 单独成方法是为了避免在 main 中因 return 导致后续代码不可达
+    static void returnFinallyDemo() {
+        try {
+            throw new RuntimeException("触发 catch");
+        } catch (RuntimeException e) {
+            System.out.println("catch 块: 准备 return");
+            return;                                             // 即使 return，finally 也会执行
+        } finally {
+            System.out.println("finally 块（在 return 前执行）");
+        }
     }
 
     // 使用 throw 抛出异常

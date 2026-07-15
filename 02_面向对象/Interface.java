@@ -21,6 +21,7 @@ public class Interface {
         circle.draw();
         System.out.println("面积: " + circle.getArea());
         circle.print();                         // default 方法
+        circle.printWithHelper();               // default 方法调用 private 方法
 
         // 接口静态方法
         System.out.println("Drawable 描述: " + Drawable.description());

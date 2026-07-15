@@ -25,7 +25,7 @@ public class FlexibleConstructor {
         }
 
         // 参数预处理
-        Rectangle r = new Rectangle(-5, 10);
+        FlexibleRectangle r = new FlexibleRectangle(-5, 10);
         System.out.println("矩形: " + r);
 
         // 演示 this() 之前也可以有代码
@@ -76,11 +76,11 @@ class PositiveInt {
 }
 
 // ============ 示例 2：参数变换 ============
-class Rectangle {
+class FlexibleRectangle {
     private final int width;
     private final int height;
 
-    public Rectangle(int width, int height) {
+    public FlexibleRectangle(int width, int height) {
         // 变换参数：宽高取绝对值，避免负值
         int w = Math.abs(width);
         int h = Math.abs(height);
@@ -122,11 +122,11 @@ class LoggingUser {
 }
 
 // ============ 示例 4：子类构造器中的灵活性 ============
-class Animal {
+class ConstructorAnimal {
     private final String name;
     private final int legs;
 
-    public Animal(String name, int legs) {
+    public ConstructorAnimal(String name, int legs) {
         this.name = name;
         this.legs = legs;
     }
@@ -137,7 +137,7 @@ class Animal {
     }
 }
 
-class SafeDog extends Animal {
+class SafeDog extends ConstructorAnimal {
     private final String breed;
 
     // JDK 25：可以在 super() 之前校验参数

@@ -16,7 +16,7 @@ import java.time.Instant;
  * javac --enable-preview --source 25 StructuredConcurrency.java
  * java  --enable-preview StructuredConcurrency
  * <p>
- * 注意：本文件中的代码是结构化并发的伪代码/示意，具体 API 会随预览版本演进。
+ * 注意：StructuredTaskScope 仍是预览 API，后续 JDK 版本可能继续调整。
  */
 public class StructuredConcurrency {
 
@@ -26,7 +26,7 @@ public class StructuredConcurrency {
         System.out.println("========== 传统方式（问题）==========");
         traditionalWay();
 
-        // ============ 结构化并发（概念展示）============
+        // ============ 结构化并发 ============
         System.out.println("\n========== 结构化并发 ==========");
         structuredWay();
 
@@ -41,7 +41,8 @@ public class StructuredConcurrency {
      */
     static void traditionalWay() throws Exception {
         Instant start = Instant.now();
-        try (ExecutorService exec = Executors.newFixedThreadPool(2)) {
+        // IO 密集任务（fetchUser/fetchOrderCount 均为 sleep 模拟 IO），JDK 21+ 推荐虚拟线程执行器
+        try (ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor()) {
             Future<String> f1 = exec.submit(() -> fetchUser(1));
             Future<Integer> f2 = exec.submit(() -> fetchOrderCount(1));
 
@@ -62,12 +63,12 @@ public class StructuredConcurrency {
     /**
      * 结构化并发：任务作为一个"作用域"内的整体
      * <p>
-     * 注意：以下代码为 JDK 25 结构化并发的概念示例，
-     * 具体 API 名称/包路径在预览期可能有变化。
+     * 以下代码使用 JDK 25 的预览 API，后续 JDK 版本可能调整。
      * <p>
      * 实际用法（JDK 25 语法）：
      * <pre>
-     * try (var scope = StructuredTaskScope.open()) {
+     * var joiner = StructuredTaskScope.Joiner.&lt;Object&gt;awaitAllSuccessfulOrThrow();
+     * try (var scope = StructuredTaskScope.open(joiner)) {
      *     var f1 = scope.fork(() -> fetchUser(1));
      *     var f2 = scope.fork(() -> fetchOrderCount(1));
      *     scope.join();               // 等待所有 fork 完成
@@ -76,19 +77,15 @@ public class StructuredConcurrency {
      * }
      * </pre>
      */
-    static void structuredWay() {
-        System.out.println("[伪代码示意]");
-        System.out.println("try (var scope = StructuredTaskScope.open()) {");
-        System.out.println("    var user  = scope.fork(() -> fetchUser(1));");
-        System.out.println("    var order = scope.fork(() -> fetchOrderCount(1));");
-        System.out.println("    scope.join();       // 等所有分支");
-        System.out.println("    combine(user.get(), order.get());");
-        System.out.println("}");
-        System.out.println();
-        System.out.println("特点：");
-        System.out.println("- 所有 fork 出的子任务在 scope 内");
-        System.out.println("- scope.close() 时确保所有子任务已完成或取消");
-        System.out.println("- 一个失败可以自动取消其他兄弟任务");
+    static void structuredWay() throws Exception {
+        var joiner = StructuredTaskScope.Joiner.<Object>awaitAllSuccessfulOrThrow();
+        try (var scope = StructuredTaskScope.open(joiner)) {
+            var user = scope.fork(() -> fetchUser(1));
+            var order = scope.fork(() -> fetchOrderCount(1));
+
+            scope.join();
+            System.out.println("用户: " + user.get() + ", 订单数: " + order.get());
+        }
     }
 
     /**
@@ -145,7 +142,7 @@ public class StructuredConcurrency {
  *
  * 就像 try-with-resources 保证资源关闭一样，
  * try (var scope = StructuredTaskScope.open()) { ... }
- * 保证所有 fork 的子任务在 scope 关闭时已处理。
+ * 把子任务的生命周期限制在 scope 内。合流、失败和取消策略由 Joiner 决定。
  *
  * =============== 解决的问题 ===============
  *
@@ -184,7 +181,7 @@ public class StructuredConcurrency {
  *   Joiner.allSuccessfulOrThrow()   全部成功，一个失败全部取消
  *   Joiner.anySuccessfulResultOrThrow()  任一成功即返回，其他取消
  *   Joiner.awaitAll()               等待所有（不管成败）
- *   Joiner.awaitAllSuccessfulOrThrow()  等所有成功，一个失败抛异常
+ *   Joiner.awaitAllSuccessfulOrThrow()  等待全部；失败时抛异常
  *
  * 用法：
  *   try (var scope = StructuredTaskScope.open(Joiner.allSuccessfulOrThrow())) {
