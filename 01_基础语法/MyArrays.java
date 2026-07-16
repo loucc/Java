@@ -193,21 +193,13 @@ public class MyArrays {
         // Arrays.deepToString 打印多维数组
         System.out.println("\ndeepToString: " + Arrays.deepToString(matrix));
 
-        // ============ 7. 数组常见错误 ============
+        // ============ 7. 数组边界 ============
         System.out.println("\n========== 常见错误 ==========");
         int[] test = {1, 2, 3};
-        try {
-            int val = test[10];                 // 数组越界
-        } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("数组越界: " + e.getMessage());
-        }
-
-        try {
-            int[] nullArr = null;
-            int len = nullArr.length;           // 空指针
-        } catch (NullPointerException e) {
-            System.out.println("空指针: 不能访问 null 数组的属性");
-        }
+        System.out.println("有效索引范围: 0 ~ " + (test.length - 1));
+        // 取消下一行注释可观察 ArrayIndexOutOfBoundsException：
+        // System.out.println(test[test.length]);
+        // null 数组不能读取 length；NullPointerException 将在异常章节详细学习。
 
         // ============ 8. 命令行参数数组 ============
         System.out.println("\n========== 命令行参数 ==========");
@@ -234,8 +226,8 @@ public class MyArrays {
  * 长度         固定                  动态扩容
  * 类型         基本+引用             只能引用类型（自动装箱）
  * 语法         [] 语法糖             方法调用
- * 性能         略高                  略低（有额外开销）
- * 使用场景     大小固定、追求性能    大小变化、丰富的操作
+ * 存储         可直接存基本类型       元素是引用类型（基本类型会装箱）
+ * 使用场景     长度固定、API 要求      大小变化、需要集合 API
  *
  * 注意：本文件类名叫 MyArrays 是因为要避免与 java.util.Arrays 冲突。
  */

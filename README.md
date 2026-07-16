@@ -33,6 +33,7 @@ java 文件名.java
 | 06 | `MyArrays.java` | 一维/二维数组、Arrays工具类 |
 | 07 | `Strings.java` | String、StringBuilder、StringBuffer、常用API |
 | 08 | `TextBlocks.java` | 文本块（JDK 15+） |
+| 练习 | `BasicExercises.java` | 基础语法综合练习与边界输入 |
 
 ### 第二阶段：面向对象 (02_面向对象)
 > Java 的核心——面向对象编程。

@@ -7,8 +7,8 @@
  * 3. do-while 循环
  * 4. 增强 for 循环（for-each）
  * 5. break 和 continue
- * 6. 标签（label）
- * 7. 死循环
+ * 6. 嵌套循环与退出策略
+ * 7. 标签（label，可选语法）
  */
 public class Loops {
 
@@ -113,10 +113,11 @@ public class Loops {
             System.out.println();
         }
 
-        // ============ 7. 标签（label）配合 break/continue ============
+        // ============ 7. 标签（label，可选语法）============
         System.out.println("\n========== 标签控制嵌套循环 ==========");
         // 在嵌套循环中，break/continue 默认只影响最内层
         // 使用标签可以指定影响哪一层
+        // 标签适合少数需要直接退出多层循环的场景。复杂逻辑通常抽取为方法更易测试。
         outer:
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
@@ -128,18 +129,6 @@ public class Loops {
             }
         }
         System.out.println();
-
-        // continue 配合标签
-        System.out.println("\n========== continue + 标签 ==========");
-        loop:
-        for (int i = 1; i <= 3; i++) {
-            for (int j = 1; j <= 3; j++) {
-                if (j == 2) {
-                    continue loop;              // 跳过外层这一次
-                }
-                System.out.println("i=" + i + ", j=" + j);
-            }
-        }
 
         // ============ 8. 死循环 ============
         System.out.println("\n========== 死循环示例（有 break 退出） ==========");

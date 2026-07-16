@@ -6,7 +6,7 @@
  * 2. switch 语句（传统写法）
  * 3. switch 表达式（JDK 14+ 新写法）
  * 4. switch 中的 yield 关键字
- * 5. 模式匹配 switch（JDK 21+）
+ * 5. 减少控制流嵌套
  */
 public class ControlFlow {
 
@@ -112,29 +112,9 @@ public class ControlFlow {
         };
         System.out.println("月份 " + month + " → " + season);
 
-        // ============ 5. 模式匹配 switch（JDK 21+）============
-        System.out.println("\n========== 模式匹配 switch ==========");
-        Object obj = "Hello";
-        String desc = switch (obj) {
-            case Integer i -> "整数：" + i;
-            case String s -> "字符串：" + s + "，长度：" + s.length();
-            case Double d -> "双精度：" + d;
-            case null -> "空值";
-            default -> "未知类型";
-        };
-        System.out.println(desc);
+        // 模式匹配 switch 依赖类型建模知识，详见 07_JDK25新特性/PatternMatching.java
 
-        // 支持 when 守卫条件
-        Object value = 100;
-        String result = switch (value) {
-            case Integer i when i > 0 -> "正整数：" + i;
-            case Integer i when i < 0 -> "负整数：" + i;
-            case Integer i -> "零";
-            default -> "非整数";
-        };
-        System.out.println(result);
-
-        // ============ 6. 嵌套控制流 ============
+        // ============ 5. 嵌套控制流 ============
         System.out.println("\n========== 嵌套判断 ==========");
         int userAge = 25;
         boolean hasLicense = true;
@@ -154,7 +134,7 @@ public class ControlFlow {
             System.out.println("未成年，不能开车");
         }
 
-        // 建议：使用逻辑运算符简化嵌套
+        // 条件简单时可使用逻辑运算符减少嵌套
         if (userAge >= 18 && hasLicense && hasCar) {
             System.out.println("[优化后] 可以开自己的车");
         }

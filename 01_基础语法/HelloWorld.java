@@ -5,7 +5,7 @@
  * 1. Java 程序的基本结构
  * 2. main 方法
  * 3. System.out.println 输出
- * 4. JDK 25 新特性：紧凑源文件和实例main方法 (JEP 512)
+ * 4. JDK 25 新特性：紧凑源文件和实例 main 方法（JEP 512）
  * 5. 编译和运行 Java 程序
  * <p>
  * Java 程序的执行流程：
@@ -25,7 +25,7 @@ public class HelloWorld {
 
         // System.out.print() 打印内容不换行
         System.out.print("你好, ");
-        System.out.print("Java 25\n");
+        System.out.println("Java 25");
 
         // System.out.printf() 格式化输出，类似 C 语言
         System.out.printf("Java 版本: %d, 我今年 %d 岁%n", 25, 20);
@@ -36,7 +36,7 @@ public class HelloWorld {
             System.out.println("参数 " + i + ": " + args[i]);
         }
 
-        // JDK 25 中，你还可以使用更简洁的形式（紧凑源文件）
+        // 紧凑源文件适合小程序、脚本和教学；具名类仍适合需要清晰类型边界的应用。
         // 详见 07_JDK25新特性/CompactSourceFile.java
     }
 }

@@ -179,29 +179,8 @@ public class Strings {
         System.out.println("length: " + sb2.length());
         System.out.println("capacity: " + sb2.capacity());
 
-        // 拼接大量字符串性能对比
-        long start;
-        int times = 10000;
-
-        // String 拼接（慢）
-        start = System.currentTimeMillis();
-        String temp = "";
-        for (int i = 0; i < times; i++) {
-            temp += i;                          // 每次都创建新对象
-        }
-        long stringTime = System.currentTimeMillis() - start;
-
-        // StringBuilder 拼接（快）
-        start = System.currentTimeMillis();
-        StringBuilder sbTemp = new StringBuilder();
-        for (int i = 0; i < times; i++) {
-            sbTemp.append(i);
-        }
-        long sbTime = System.currentTimeMillis() - start;
-
-        System.out.println("\n拼接 " + times + " 次:");
-        System.out.println("String: " + stringTime + "ms");
-        System.out.println("StringBuilder: " + sbTime + "ms");
+        // 循环中逐步构造字符串时复用一个 StringBuilder，避免反复创建中间字符串。
+        // 性能结论需要使用 JMH 在目标 JDK 和真实数据规模下验证。
 
         // ============ 6. StringBuffer（线程安全） ============
         System.out.println("\n========== StringBuffer ==========");
@@ -209,23 +188,23 @@ public class Strings {
         sbf.append(" World");
         System.out.println("StringBuffer: " + sbf);
         // API 和 StringBuilder 完全一样
-        // 区别：所有方法都用 synchronized 修饰，线程安全但慢
+        // 区别：公开操作带同步语义；现代代码通常优先避免跨线程共享构建器
     }
 }
 
 /*
  * =============== String / StringBuilder / StringBuffer 对比 ===============
  *
- *                  可变性       线程安全      性能
- * String           不可变       安全          差（拼接慢）
- * StringBuilder    可变         不安全        快（单线程首选）
- * StringBuffer     可变         安全          中（多线程用）
+ *                  可变性       并发语义
+ * String           不可变       可安全共享
+ * StringBuilder    可变         不提供同步
+ * StringBuffer     可变         公开操作同步
  *
  * =============== 使用建议 ===============
  *
  * 1. 少量拼接：直接用 String 的 + 运算符（编译器优化为 StringBuilder）
- * 2. 循环拼接：一定用 StringBuilder
- * 3. 多线程环境：用 StringBuffer 或 StringBuilder + synchronized
+ * 2. 循环中逐步拼接：通常复用 StringBuilder
+ * 3. 多线程环境：优先避免共享构建器；确需共享时再设计同步策略
  * 4. JDK 15+ 大段文本：使用文本块（详见 TextBlocks.java）
  * 5. 判空首选：str == null || str.isEmpty() 或 str.isBlank()
  */

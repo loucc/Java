@@ -27,6 +27,11 @@ public class Operators {
         // 浮点数除法
         System.out.println("10.0 / 3 = " + (10.0 / 3));         // 3.333...
 
+        // 生产代码需要注意整数溢出和二进制浮点误差
+        System.out.println("int 溢出: " + (Integer.MAX_VALUE + 1));
+        System.out.println("0.1 + 0.2 = " + (0.1 + 0.2));
+        System.out.println("金额等十进制精确计算应使用 BigDecimal，而不是 double");
+
         // 自增/自减
         int x = 5;
         System.out.println("x = " + x);
@@ -102,9 +107,14 @@ public class Operators {
         int max = a > b ? a : b;
         System.out.println("max(" + a + "," + b + ") = " + max);
 
-        // 三元运算符可以嵌套
+        // 三元运算符可以嵌套，但多层嵌套会降低可读性，生产代码优先使用 if 或 switch
         int score = 85;
-        String grade = score >= 90 ? "A" : score >= 80 ? "B" : score >= 60 ? "C" : "D";
+        String grade = switch (score / 10) {
+            case 10, 9 -> "A";
+            case 8 -> "B";
+            case 7, 6 -> "C";
+            default -> "D";
+        };
         System.out.println("score=" + score + " → " + grade);
 
         // ============ 7. instanceof 运算符 ============

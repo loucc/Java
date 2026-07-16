@@ -23,16 +23,16 @@ public class Variables {
         byte b = 127;                       // 1 字节，范围 -128 ~ 127
         short s = 32767;                    // 2 字节，范围 -32768 ~ 32767
         int i = 2147483647;                 // 4 字节，最常用的整数类型
-        long l = 9223372036854775807L;      // 8 字节，注意后缀 L
+        long lng = 9223372036854775807L;   // 8 字节，注意后缀 L（变量名避免用小写 l，易与 1 混淆）
 
         // 浮点类型
         float f = 3.14F;                    // 4 字节，注意后缀 F
         double d = 3.141592653589793;       // 8 字节，默认浮点类型
 
         // 字符类型
-        char c = 'A';                       // 2 字节，Unicode，注意单引号
+        char c = 'A';                       // 2 字节的 UTF-16 code unit，注意单引号
         char cn = '中';                      // 支持中文
-        char unicode = 'A';            // Unicode 表示（'A'）
+        char unicode = '\u0041';            // Unicode 转义写法（U+0041，即 'A'）
 
         // 布尔类型
         boolean flag = true;                // 只有 true 和 false
@@ -40,11 +40,16 @@ public class Variables {
         System.out.println("byte    = " + b);
         System.out.println("short   = " + s);
         System.out.println("int     = " + i);
-        System.out.println("long    = " + l);
+        System.out.println("long    = " + lng);
         System.out.println("float   = " + f);
         System.out.println("double  = " + d);
         System.out.println("char    = " + c + ", " + cn + ", " + unicode);
         System.out.println("boolean = " + flag);
+
+        // 一个 Unicode 码点不一定只占一个 char，例如 emoji 使用一对 UTF-16 code unit
+        String emoji = "😀";
+        System.out.println("emoji.length() = " + emoji.length());
+        System.out.println("emoji 码点数 = " + emoji.codePointCount(0, emoji.length()));
 
         // ============ 2. 引用数据类型 ============
 
@@ -84,16 +89,21 @@ public class Variables {
         System.out.println("常量 PI = " + PI);
         System.out.println("常量 MAX_SIZE = " + MAX_SIZE);
 
-        // ============ 5. var 关键字（JDK 10+ 局部变量类型推断） ============
+        // ============ 5. var 关键字（JDK 10+ 局部变量类型推断）============
 
         // 编译器会根据右侧的值推断类型
-        var age = 25;                       // 推断为 int
+        var age = 25;                       // 推断为 int（基本类型）
         var pi = 3.14;                      // 推断为 double
         var text = "Hello";                 // 推断为 String
         var list = new java.util.ArrayList<String>();  // 推断为 ArrayList<String>
 
-        System.out.println("var age = " + age + " (类型: " + ((Object) age).getClass().getSimpleName() + ")");
+        // 注意：age 实际类型是 int，但 (Object) age 会触发自动装箱，
+        // getClass() 因此返回包装类 Integer——这不代表 var 推断成了包装类。
+        System.out.println("var age = " + age + " (运行时显示: " + ((Object) age).getClass().getSimpleName() + ", 实际: int)");
         System.out.println("var text = " + text);
+
+        // 生产代码中，右侧类型明显且不会损害可读性时可以使用 var。
+        // 如果返回类型承载重要业务含义，显式类型通常更清楚。
 
         // 注意：var 只能用于局部变量，且必须初始化
         // var x;                           // 错误！
@@ -131,7 +141,7 @@ public class Variables {
  * long    : -2^63 ~ 2^63-1                      (超大数字，注意后缀 L)
  * float   : 约 ±3.4E38，7 位有效数字
  * double  : 约 ±1.8E308，15 位有效数字
- * char    : 0 ~ 65535                            (Unicode)
+ * char    : 0 ~ 65535                            (一个 UTF-16 code unit)
  * boolean : true / false
  *
  * =============== 命名规范 ===============
