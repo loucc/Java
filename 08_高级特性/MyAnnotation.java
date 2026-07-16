@@ -1,6 +1,10 @@
 import java.lang.annotation.*;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * MyAnnotation.java - 注解（Annotation）
@@ -76,17 +80,28 @@ public class MyAnnotation {
         Object instance = testClass.getDeclaredConstructor().newInstance();
         int total = 0, passed = 0;
 
-        for (Method m : testClass.getDeclaredMethods()) {
-            Test t = m.getAnnotation(Test.class);
-            if (t == null || !t.enabled()) continue;
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (Method m : testClass.getDeclaredMethods()) {
+                Test t = m.getAnnotation(Test.class);
+                if (t == null || !t.enabled()) continue;
 
-            total++;
-            try {
-                m.invoke(instance);
-                passed++;
-                System.out.println("✅ " + m.getName());
-            } catch (Exception e) {
-                System.out.println("❌ " + m.getName() + " → " + e.getCause().getMessage());
+                total++;
+                var future = executor.submit(() -> {
+                    m.invoke(instance);
+                    return null;
+                });
+                try {
+                    future.get(t.timeout(), TimeUnit.MILLISECONDS);
+                    passed++;
+                    System.out.println("PASS " + m.getName());
+                } catch (TimeoutException e) {
+                    future.cancel(true);
+                    System.out.println("FAIL " + m.getName() + " -> timeout " + t.timeout() + "ms");
+                } catch (ExecutionException e) {
+                    Throwable reflected = e.getCause();
+                    Throwable cause = reflected.getCause() != null ? reflected.getCause() : reflected;
+                    System.out.println("FAIL " + m.getName() + " -> " + cause.getMessage());
+                }
             }
         }
         System.out.println("\n测试结果: " + passed + "/" + total + " 通过");

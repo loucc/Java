@@ -176,7 +176,7 @@ record PersonInfo(String name, int age, Address address) {}
  * =============== record 的特点 ===============
  *
  * 1. record 是隐式 final 的（不能被继承）
- * 2. record 的字段是 private final（不可变）
+ * 2. record 的字段是 private final，但引用组件指向的对象仍可能可变（浅不可变）
  * 3. 每个组件自动生成访问器方法（如 x() 而不是 getX()）
  * 4. 自动生成 equals()、hashCode()、toString()
  * 5. 自动生成全参构造器（规范构造器）
@@ -200,7 +200,7 @@ record PersonInfo(String name, int age, Address address) {}
  *
  * 用 record 的场景：
  * - 简单的数据载体（DTO、值对象、坐标、结果）
- * - 不可变数据
+ * - 组件本身不可重新赋值的数据载体
  * - 需要 equals/hashCode 基于字段
  * - 用作 Map 的 key 或 Set 元素
  *
@@ -209,6 +209,11 @@ record PersonInfo(String name, int age, Address address) {}
  * - 需要继承其他类
  * - 字段需要复杂的初始化逻辑
  * - 需要控制访问器命名（getX 而非 x）
+ *
+ * 如果组件是集合等可变对象，应在构造器中防御性复制：
+ *   record Tags(java.util.List<String> values) {
+ *       Tags { values = java.util.List.copyOf(values); }
+ *   }
  *
  * =============== record 与模式匹配 ===============
  *

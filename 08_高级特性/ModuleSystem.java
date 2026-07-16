@@ -85,7 +85,7 @@ public class ModuleSystem {
                     transitive  传递给依赖我的模块
                 exports     导出包（可被其他模块 import）
                     to          限定给指定模块
-                opens       打开包供反射（比 exports 更强）
+                opens       允许运行时深反射，与 exports 的普通访问语义不同
                     to          限定
                 uses        使用某个服务接口（ServiceLoader）
                 provides    提供服务实现

@@ -117,21 +117,20 @@ public class MyHttpClient {
 
         // ============ 7. 并发多个请求 ============
         System.out.println("\n========== 并发请求 ==========");
-        long start = System.currentTimeMillis();
         var urls = new String[]{
             "https://httpbin.org/delay/1",
             "https://httpbin.org/delay/1",
             "https://httpbin.org/delay/1"
         };
 
-        var futures = new CompletableFuture[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            HttpRequest req = HttpRequest.newBuilder().uri(URI.create(urls[i])).build();
-            futures[i] = client.sendAsync(req, BodyHandlers.ofString());
-        }
-
-        CompletableFuture.allOf(futures).join();
-        System.out.println("3 个 1 秒请求并发耗时: " + (System.currentTimeMillis() - start) + "ms");
+        var futures = java.util.Arrays.stream(urls)
+            .map(url -> HttpRequest.newBuilder().uri(URI.create(url)).build())
+            .map(req -> client.sendAsync(req, BodyHandlers.ofString()))
+            .toList();
+        CompletableFuture<?>[] futureArray = futures.toArray(CompletableFuture<?>[]::new);
+        CompletableFuture.allOf(futureArray).join();
+        System.out.println("并发请求全部完成，状态码: "
+            + futures.stream().map(f -> f.join().statusCode()).toList());
 
         // ============ 8. 不同的 BodyHandlers ============
         System.out.println("\n========== BodyHandlers ==========");
@@ -232,12 +231,7 @@ public class MyHttpClient {
  * 同步：client.send(request, handler)         → HttpResponse
  * 异步：client.sendAsync(request, handler)    → CompletableFuture<HttpResponse>
  *
- * 大量并发调用请用 sendAsync，或结合虚拟线程 + sendSync。
- *
- * =============== JDK 25 相关改进 ===============
- *
- * JDK 25 中的 HTTP 相关 JEP：
- * - JEP 517 (预告): HTTP/2 支持预取推送等
- *
- * 结合 java.util.json (预览) 可以处理 JSON 响应更方便。
+ * 并发调用可以使用 sendAsync，或在线程阻塞风格更清晰时结合虚拟线程使用 send。
+ * 两种方式都需要配置连接/请求超时、限制下游并发，并检查 HTTP 状态码。
+ * JDK 25 不包含通用 JSON API；JSON 处理通常使用 JSON-P、Jackson、Gson 等库。
  */

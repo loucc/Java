@@ -142,18 +142,18 @@ public class ScopedValues {
  * - 值在一个明确的作用域内绑定
  * - 作用域内所有代码（包括嵌套调用）都可以访问
  * - 作用域结束后，值自动清除
- * - 不可变（比 ThreadLocal 更安全）
+ * - 绑定不可重新赋值；绑定对象本身仍可能是可变对象
  *
  * =============== ScopedValue vs ThreadLocal ===============
  *
  *                    ThreadLocal              ScopedValue
  * 可变性             可变（set/remove）       不可变
  * 生命周期           线程生命周期             显式的作用域
- * 内存泄漏           容易忘记 remove         不会（作用域结束自动清）
- * 虚拟线程           每个虚拟线程一份         轻量级共享
+ * 生命周期管理       需要正确 remove          由词法作用域约束
+ * 虚拟线程           每个线程独立状态          适合传递只读上下文
  * 继承给子线程       InheritableThreadLocal  结构化并发自动继承
- * 性能               较慢                    快
- * 安全性             随时可修改，副作用      不可变，可追溯
+ * 性能               依场景测量                依场景测量
+ * 绑定语义           可 set/remove             作用域内不可重新绑定同一绑定
  *
  * =============== 基本 API ===============
  *
@@ -199,7 +199,7 @@ public class ScopedValues {
  * 1. 静态 final 声明：ScopedValue.newInstance()
  * 2. 保持数据不可变（用 record 或不可变对象）
  * 3. 尽量缩小作用域
- * 4. 优先替代 ThreadLocal（除非需要可变状态）
+ * 4. 只读、单向上下文传递可评估替代 ThreadLocal；可变线程状态不是其目标
  * 5. 配合结构化并发使用效果最佳
  *
  * =============== 迁移建议：ThreadLocal → ScopedValue ===============

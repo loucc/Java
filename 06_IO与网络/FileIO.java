@@ -47,7 +47,7 @@ public class FileIO {
         System.out.println("\n========== FileOutputStream ==========");
         try (FileOutputStream fos = new FileOutputStream("/tmp/bytes.txt")) {
             fos.write(72);                     // 写单个字节 H
-            fos.write("ello\n".getBytes());    // 写字节数组
+            fos.write("ello\n".getBytes(StandardCharsets.UTF_8));
             fos.write("你好\n".getBytes(StandardCharsets.UTF_8));
             System.out.println("字节写入完成");
         }
@@ -63,13 +63,13 @@ public class FileIO {
 
         // ============ 4. 字符流 FileWriter / FileReader ============
         System.out.println("\n========== FileWriter/FileReader ==========");
-        try (FileWriter fw = new FileWriter("/tmp/text.txt")) {
+        try (FileWriter fw = new FileWriter("/tmp/text.txt", StandardCharsets.UTF_8)) {
             fw.write("你好，Java IO\n");
             fw.write("这是第二行\n");
             fw.append("追加的内容");
         }
 
-        try (FileReader fr = new FileReader("/tmp/text.txt")) {
+        try (FileReader fr = new FileReader("/tmp/text.txt", StandardCharsets.UTF_8)) {
             char[] buf = new char[1024];
             int n = fr.read(buf);
             System.out.println("读取: " + new String(buf, 0, n));
@@ -77,7 +77,8 @@ public class FileIO {
 
         // ============ 5. 缓冲流（推荐，效率高） ============
         System.out.println("\n========== BufferedWriter/Reader ==========");
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("/tmp/buffered.txt"))) {
+        try (BufferedWriter bw = new BufferedWriter(
+                new FileWriter("/tmp/buffered.txt", StandardCharsets.UTF_8))) {
             bw.write("第一行");
             bw.newLine();                       // 跨平台换行
             bw.write("第二行");
@@ -86,7 +87,8 @@ public class FileIO {
         }
 
         // 按行读取（最常用）
-        try (BufferedReader br = new BufferedReader(new FileReader("/tmp/buffered.txt"))) {
+        try (BufferedReader br = new BufferedReader(
+                new FileReader("/tmp/buffered.txt", StandardCharsets.UTF_8))) {
             String line;
             int lineNo = 1;
             while ((line = br.readLine()) != null) {
@@ -95,7 +97,8 @@ public class FileIO {
         }
 
         // BufferedReader 的 lines() 方法（返回 Stream）
-        try (BufferedReader br = new BufferedReader(new FileReader("/tmp/buffered.txt"))) {
+        try (BufferedReader br = new BufferedReader(
+                new FileReader("/tmp/buffered.txt", StandardCharsets.UTF_8))) {
             br.lines().forEach(l -> System.out.println("流: " + l));
         }
 
@@ -117,7 +120,8 @@ public class FileIO {
 
         // ============ 7. PrintWriter（方便的字符输出） ============
         System.out.println("\n========== PrintWriter ==========");
-        try (PrintWriter pw = new PrintWriter(new FileWriter("/tmp/print.txt"))) {
+        try (PrintWriter pw = new PrintWriter(
+                new FileWriter("/tmp/print.txt", StandardCharsets.UTF_8))) {
             pw.println("这是 println");
             pw.printf("格式化: %s = %d%n", "age", 25);
             pw.print("不换行");

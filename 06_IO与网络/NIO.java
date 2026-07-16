@@ -1,6 +1,7 @@
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -184,7 +185,7 @@ public class NIO {
 
         // ============ 9. 综合示例：统计 .java 文件行数 ============
         System.out.println("\n========== 统计代码行数 ==========");
-        Path start = Path.of("/Users/loucongcong/devData/java-learn/jdk25");
+        Path start = Path.of("").toAbsolutePath();
         if (Files.exists(start)) {
             try (Stream<Path> paths = Files.walk(start)) {
                 long total = paths
@@ -193,7 +194,7 @@ public class NIO {
                         try {
                             return Files.lines(p);
                         } catch (IOException e) {
-                            return Stream.empty();
+                            throw new UncheckedIOException("无法读取: " + p, e);
                         }
                     })
                     .filter(l -> !l.isBlank())
@@ -273,7 +274,7 @@ public class NIO {
  *
  * 1. 优先使用 Files 工具类
  * 2. 小文件：Files.readString/writeString
- * 3. 大文件：Files.lines + Stream
+ * 3. 大文件或持续处理：使用 BufferedReader、Files.lines 或按字节流式读取
  * 4. 遍历：Files.walk + Stream
  * 5. try-with-resources 关闭 Stream
  * 6. 显式指定编码（Charset）

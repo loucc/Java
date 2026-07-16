@@ -188,7 +188,7 @@ record CryptoPayment(double amount, String wallet) implements Payment {}
  *
  * =============== 限制 ===============
  *
- * 1. 所有 permits 中的子类必须能被父类看到（同模块）
+ * 1. 命名模块中 permitted 子类必须在同一模块；未命名模块中必须在同一包
  * 2. 子类必须直接继承密封类
- * 3. 密封类和子类必须在同一模块中
+ * 3. 子类必须声明为 final、sealed 或 non-sealed
  */

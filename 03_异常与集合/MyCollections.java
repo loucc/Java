@@ -241,7 +241,7 @@ public class MyCollections {
  *   ├── List (接口)               有序、可重复
  *   │     ├── ArrayList          动态数组
  *   │     ├── LinkedList         双向链表
- *   │     └── Vector             线程安全（已过时）
+ *   │     └── Vector             遗留的同步动态数组
  *   ├── Set (接口)                无序、不重复
  *   │     ├── HashSet            哈希表
  *   │     ├── LinkedHashSet      哈希表 + 双向链表（保持插入顺序）
@@ -255,21 +255,21 @@ public class MyCollections {
  *   ├── HashMap                  哈希表
  *   ├── LinkedHashMap            哈希表 + 双向链表
  *   ├── TreeMap                  红黑树（按 key 排序）
- *   └── Hashtable                线程安全（已过时）
+ *   └── Hashtable                遗留的同步 Map
  *
  * =============== 选型建议 ===============
  *
  * 需求                          推荐
  * 通用列表，随机访问多          ArrayList
  * 频繁头尾插入/删除             LinkedList / ArrayDeque
- * 去重，无序                    HashSet
+ * 去重，不保证迭代顺序           HashSet
  * 去重，保持插入顺序            LinkedHashSet
  * 去重，自动排序                TreeSet
  * 通用键值对                    HashMap
  * 保持插入顺序的键值对          LinkedHashMap
  * 自动排序的键值对              TreeMap
  * 优先级队列                    PriorityQueue
- * 线程安全                      ConcurrentHashMap / CopyOnWriteArrayList
+ * 并发访问                      按读写模式选择 ConcurrentHashMap 等并发集合
  *
  * =============== 时间复杂度速查 ===============
  *

@@ -89,7 +89,7 @@ public class Polymorphism {
         System.out.println("\n========== static 方法 ==========");
         Base b = new Sub();
         b.instanceMethod();                     // Sub 的方法（多态）
-        b.staticMethod();                       // Base 的方法（无多态）
+        Base.staticMethod();                    // static 方法按声明类型调用，不参与动态分派
     }
 
     // 多态方法：可以接收 Shape 的任何子类

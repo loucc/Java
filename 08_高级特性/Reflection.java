@@ -140,30 +140,7 @@ public class Reflection {
         // 注意：String[] 是可变参数，要包一层
         mainMethod.invoke(null, (Object) new String[]{"arg1", "arg2"});
 
-        // ============ 9. 反射的性能 ============
-        System.out.println("\n========== 反射性能 ==========");
-        Employee2 sample = new Employee2("测试", 20, 10000);
-
-        int times = 100_000;
-
-        // 直接调用
-        long start = System.nanoTime();
-        for (int i = 0; i < times; i++) {
-            sample.greet("hi");
-        }
-        long directTime = System.nanoTime() - start;
-
-        // 反射调用
-        Method mGreet = clz.getMethod("greet", String.class);
-        start = System.nanoTime();
-        for (int i = 0; i < times; i++) {
-            mGreet.invoke(sample, "hi");
-        }
-        long reflectTime = System.nanoTime() - start;
-
-        System.out.println("直接调用 " + times + " 次: " + directTime / 1_000_000 + "ms");
-        System.out.println("反射调用 " + times + " 次: " + reflectTime / 1_000_000 + "ms");
-        System.out.println("反射是直接的 " + (reflectTime / directTime) + " 倍");
+        System.out.println("\n反射性能取决于调用路径与 JIT，应使用 JMH 在目标场景测量");
     }
 }
 
@@ -217,7 +194,7 @@ class SimpleMain {
  * - 加载一个用户配置的类名
  * - 调用一个字符串名字的方法
  * - 遍历所有字段并打印
- * - 无视访问修饰符（setAccessible）
+ * - 在模块开放规则允许时访问非 public 成员（setAccessible）
  *
  * =============== Class 对象 ===============
  *
@@ -244,7 +221,7 @@ class SimpleMain {
  *   getDeclaredField(name)  单个声明的字段
  *   field.get(obj)          读值
  *   field.set(obj, val)     写值
- *   field.setAccessible(true) 突破 private
+ *   field.setAccessible(true) 请求深反射访问；强封装模块可能拒绝
  *
  * 【方法 Method】
  *   getMethods()            所有 public 方法（含继承）
@@ -289,7 +266,7 @@ class SimpleMain {
  * =============== 相关新特性 ===============
  *
  * JDK 25 支持的运行时能力：
- * - MethodHandles（方法句柄，更快）
- * - VarHandle（更高效的字段访问）
+ * - MethodHandles（可组合、带类型检查的方法句柄）
+ * - VarHandle（具有明确内存语义的字段/数组访问）
  * - LambdaMetafactory（Lambda 的运行时机制）
  */

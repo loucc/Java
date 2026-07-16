@@ -122,21 +122,15 @@ public class MyCompletableFuture {
         System.out.println("  C: " + c.get());
 
         // 收集所有结果
-        CompletableFuture<String>[] futures = new CompletableFuture[]{
+        List<CompletableFuture<String>> futures = List.of(
             CompletableFuture.supplyAsync(() -> "R1"),
             CompletableFuture.supplyAsync(() -> "R2"),
             CompletableFuture.supplyAsync(() -> "R3")
-        };
+        );
+        CompletableFuture<?>[] futureArray = futures.toArray(CompletableFuture<?>[]::new);
         CompletableFuture<List<String>> allResults = CompletableFuture
-            .allOf(futures)
-            .thenApply(v -> {
-                List<String> results = new java.util.ArrayList<>();
-                for (CompletableFuture<String> f : futures) {
-                    try { results.add(f.get()); }
-                    catch (Exception e) { results.add("ERR"); }
-                }
-                return results;
-            });
+            .allOf(futureArray)
+            .thenApply(v -> futures.stream().map(CompletableFuture::join).toList());
         System.out.println("所有结果: " + allResults.get());
 
         // anyOf: 任意一个完成
@@ -286,6 +280,6 @@ public class MyCompletableFuture {
  * 3. 依赖前一个的异步结果用 thenCompose
  * 4. 独立任务合并用 thenCombine
  * 5. 记得处理异常（exceptionally/handle）
- * 6. 生产环境用自定义 Executor，避免共享 commonPool
- * 7. JDK 21+ 更推荐结构化并发（详见 StructuredConcurrency.java）
+ * 6. 阻塞任务通常显式选择合适的 Executor，避免无意占用 commonPool
+ * 7. 有明确父子生命周期的任务可评估结构化并发预览 API
  */

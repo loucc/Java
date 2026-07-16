@@ -219,20 +219,10 @@ public class Streams {
         System.out.println("\n========== 并行流 ==========");
         long parallelSum = IntStream.rangeClosed(1, 1_000_000)
             .parallel()
+            .mapToLong(value -> value)
             .sum();
         System.out.println("并行求和: " + parallelSum);
-
-        // 顺序流转并行流
-        List<Integer> bigList = IntStream.rangeClosed(1, 100).boxed().toList();
-        long start = System.currentTimeMillis();
-        long serialSum = bigList.stream().mapToLong(Integer::longValue).sum();
-        long serialTime = System.currentTimeMillis() - start;
-
-        start = System.currentTimeMillis();
-        long parSum = bigList.parallelStream().mapToLong(Integer::longValue).sum();
-        long parTime = System.currentTimeMillis() - start;
-        System.out.println("串行时间: " + serialTime + "ms, 结果: " + serialSum);
-        System.out.println("并行时间: " + parTime + "ms, 结果: " + parSum);
+        System.out.println("并行流使用 commonPool，不保证比顺序流快；性能应通过 JMH 和真实负载验证");
 
         // ============ 13. 综合案例 ============
         System.out.println("\n========== 综合案例 ==========");
@@ -327,10 +317,10 @@ public class Streams {
  *
  * =============== 使用建议 ===============
  *
- * 1. 数据量大且计算独立时用并行流
+ * 1. 只有在任务可拆分、计算量足够且 commonPool 适合时才考虑并行流
  * 2. 有状态操作（sorted、distinct）在并行流中较慢
  * 3. Stream 只能被消费一次
- * 4. 优先用方法引用替代 Lambda
+ * 4. 方法引用和 Lambda 按可读性选择
  * 5. 使用 IntStream 处理数字，避免装箱
  * 6. JDK 16+ 用 toList() 替代 collect(toList())
  */

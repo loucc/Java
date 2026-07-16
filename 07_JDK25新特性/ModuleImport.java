@@ -1,4 +1,4 @@
-/**
+/*
  * ModuleImport.java - 模块导入声明（JDK 25 JEP 511 正式特性）
  * <p>
  * 学习要点：

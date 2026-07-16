@@ -73,31 +73,8 @@ public class VirtualThread {
         }
         // try-with-resources 会自动 shutdown
 
-        // ============ 4. 性能对比：100 万个"线程" ============
-        System.out.println("\n========== 百万级并发 ==========");
-        System.out.println("平台线程池创建 10000 个任务:");
-        long start = System.currentTimeMillis();
-        try (ExecutorService platformPool = Executors.newFixedThreadPool(200)) {
-            for (int i = 0; i < 10_000; i++) {
-                platformPool.submit(() -> {
-                    Thread.sleep(50);
-                    return null;
-                });
-            }
-        }
-        System.out.println("平台线程池耗时: " + (System.currentTimeMillis() - start) + "ms");
-
-        System.out.println("\n虚拟线程创建 10000 个任务:");
-        start = System.currentTimeMillis();
-        try (ExecutorService vExec = Executors.newVirtualThreadPerTaskExecutor()) {
-            for (int i = 0; i < 10_000; i++) {
-                vExec.submit(() -> {
-                    Thread.sleep(50);
-                    return null;
-                });
-            }
-        }
-        System.out.println("虚拟线程耗时: " + (System.currentTimeMillis() - start) + "ms");
+        // 虚拟线程的优势来自阻塞型任务的高并发，不应使用 main 中的计时充当基准。
+        // 性能和容量需要使用 JMH、JFR 与真实外部资源限制共同评估。
 
         // ============ 5. Thread Builder API ============
         System.out.println("\n========== Thread Builder ==========");
@@ -205,6 +182,6 @@ public class VirtualThread {
  *
  * JDK 25 中虚拟线程更加成熟，配合：
  * - 结构化并发（JEP 505）：管理多个虚拟线程的生命周期
- * - 作用域值（JEP 506）：替代 ThreadLocal
+ * - 作用域值（JEP 506）：传递有界生命周期的只读上下文
  * - 见 StructuredConcurrency.java、ScopedValues.java
  */

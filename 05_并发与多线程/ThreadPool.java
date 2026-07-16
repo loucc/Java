@@ -192,7 +192,7 @@ public class ThreadPool {
  *   队列已满 → 创建非核心线程
  *   已达最大 → 执行拒绝策略
  *
- * =============== Executors 工厂方法（不推荐用于生产） ===============
+ * =============== Executors 工厂方法与资源边界 ===============
  *
  * newFixedThreadPool(n)     无界队列，可能 OOM
  * newSingleThreadExecutor() 无界队列，可能 OOM
@@ -200,7 +200,8 @@ public class ThreadPool {
  * newScheduledThreadPool(n) 定时任务
  * newVirtualThreadPerTaskExecutor()  JDK 21+ 虚拟线程
  *
- * 阿里巴巴规范：禁止用 Executors 创建线程池，应手动 new ThreadPoolExecutor
+ * 是否使用工厂方法取决于能否接受其队列和线程增长策略。生产代码必须明确资源边界、
+ * 拒绝策略、关闭方式和监控需求；需要精细控制时使用 ThreadPoolExecutor。
  *
  * =============== Callable vs Runnable ===============
  *

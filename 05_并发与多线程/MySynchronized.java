@@ -35,7 +35,7 @@ public class MySynchronized {
         runCounter(() -> lockCounter.increment(), "lock");
         System.out.println("期望: 10000, 实际: " + lockCounter.count);
 
-        // ============ 4. 原子类（推荐） ============
+        // ============ 4. 原子类（适合单变量原子更新）============
         System.out.println("\n========== 原子类 ==========");
         AtomicCounter atomic = new AtomicCounter();
         runCounter(() -> atomic.increment(), "atomic");
@@ -130,7 +130,7 @@ class LockCounter {
     }
 }
 
-// ============ 原子类（推荐，无锁） ============
+// ============ 原子类（适合单变量原子更新）============
 class AtomicCounter {
     AtomicInteger count = new AtomicInteger(0);
 
@@ -227,16 +227,16 @@ class WaitNotifyDemo {
  * 尝试锁            无                  tryLock(timeout)
  * 公平锁            非公平              可配置
  * 条件变量          单个 wait/notify    多个 Condition
- * 性能              JDK 6+ 优化后差不多  略高（低竞争时）
+ * 性能              依竞争和临界区测量    依竞争和临界区测量
  *
  * =============== 原子类家族 ===============
  *
  * AtomicInteger, AtomicLong, AtomicBoolean
  * AtomicReference<V>
  * AtomicIntegerArray, AtomicLongArray
- * LongAdder, DoubleAdder（高并发下更快）
+ * LongAdder, DoubleAdder（高竞争统计场景可减少热点，读取不是原子快照）
  *
- * 基于 CAS（Compare-And-Swap），无锁，性能好
+ * 原子类通常基于 CAS，适合表达单变量原子状态；多字段不变量仍需要其他同步设计
  *
  * =============== wait / notify 使用规则 ===============
  *

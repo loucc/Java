@@ -18,7 +18,8 @@ public class MyException {
         // ============ 1. 基本 try-catch ============
         System.out.println("========== 基本 try-catch ==========");
         try {
-            int result = 10 / 0;                // 抛出 ArithmeticException
+            int divisor = 0;
+            int result = 10 / divisor;          // 运行时抛出 ArithmeticException
             System.out.println(result);
         } catch (ArithmeticException e) {
             System.out.println("捕获异常: " + e.getMessage());
@@ -43,7 +44,7 @@ public class MyException {
         } catch (RuntimeException e) {
             System.out.println("执行 catch 块: " + e.getMessage());
         } finally {
-            System.out.println("finally 块（一定会执行，用于资源清理）");
+            System.out.println("finally 块（正常离开 try/catch 前通常执行）");
         }
         // 注意：catch 中若写 return，finally 仍会在 return 之前执行
         // （见本文件末尾的 returnFinallyDemo 方法）
@@ -186,7 +187,8 @@ public class MyException {
 
         // ArithmeticException
         try {
-            int x = 10 / 0;
+            int divisor = 0;
+            int x = 10 / divisor;
         } catch (ArithmeticException e) {
             System.out.println("算术异常: " + e.getMessage());
         }
@@ -195,6 +197,7 @@ public class MyException {
 
 // ============ 自定义异常（继承 Exception：编译时异常） ============
 class InsufficientBalanceException extends Exception {
+    private static final long serialVersionUID = 1L;
 
     private final double currentBalance;
 
@@ -210,6 +213,7 @@ class InsufficientBalanceException extends Exception {
 
 // ============ 业务异常（异常链） ============
 class BusinessException extends Exception {
+    private static final long serialVersionUID = 1L;
     public BusinessException(String message) {
         super(message);
     }
@@ -221,6 +225,7 @@ class BusinessException extends Exception {
 
 // ============ 自定义运行时异常（无需 throws） ============
 class ValidationException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
     public ValidationException(String message) {
         super(message);
     }

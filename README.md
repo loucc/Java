@@ -100,8 +100,9 @@ java 文件名.java
 
 | 序号 | 文件 | 主要内容 |
 |-----|------|---------|
-| 39 | `PatternMatching.java` | 模式匹配 for instanceof/switch |
+| 39 | `PatternMatching.java` | JDK 16/21 模式匹配基础（JDK 25 继续支持） |
 | 40 | `CompactSourceFile.java` | 紧凑源文件(JEP 512) |
+| 示例 | `compact_hello.java` | 可直接运行的紧凑源文件 |
 | 41 | `ModuleImport.java` | 模块导入声明(JEP 511) |
 | 42 | `FlexibleConstructor.java` | 灵活构造器体(JEP 513) |
 

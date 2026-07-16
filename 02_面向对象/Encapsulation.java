@@ -20,12 +20,12 @@ public class Encapsulation {
         // 直接访问 balance 会编译错误，只能通过方法
         // acc.balance = -1000;                 // 编译错误！private
 
-        acc.deposit(1000);                      // 存钱
-        acc.withdraw(200);                      // 取钱
-        acc.withdraw(2000);                     // 余额不足
-        acc.deposit(-100);                      // 非法金额
+        acc.deposit(100_000);                   // 存入 1000.00 元（单位：分）
+        acc.withdraw(20_000);                   // 取出 200.00 元
+        acc.withdraw(200_000);                  // 余额不足
+        acc.deposit(-10_000);                   // 非法金额
 
-        System.out.println("当前余额: " + acc.getBalance());
+        System.out.printf("当前余额: %.2f 元%n", acc.getBalanceInCents() / 100.0);
 
         // ============ 2. 数据校验 ============
         System.out.println("\n========== 数据校验 ==========");
@@ -45,12 +45,12 @@ public class Encapsulation {
 class Account {
 
     // private 字段：外部无法直接访问
-    private String accountNo;
-    private double balance;
+    private final String accountNo;
+    private long balanceInCents;
 
     public Account(String accountNo) {
         this.accountNo = accountNo;
-        this.balance = 0;
+        this.balanceInCents = 0;
     }
 
     // getter：允许读取
@@ -58,31 +58,33 @@ class Account {
         return accountNo;
     }
 
-    public double getBalance() {
-        return balance;
+    public long getBalanceInCents() {
+        return balanceInCents;
     }
 
     // 业务方法：控制修改逻辑
-    public void deposit(double amount) {
-        if (amount <= 0) {
+    public void deposit(long amountInCents) {
+        if (amountInCents <= 0) {
             System.out.println("存款金额必须大于 0");
             return;
         }
-        balance += amount;
-        System.out.println("存入 " + amount + " 元, 余额 " + balance);
+        balanceInCents = Math.addExact(balanceInCents, amountInCents);
+        System.out.printf("存入 %.2f 元, 余额 %.2f 元%n",
+            amountInCents / 100.0, balanceInCents / 100.0);
     }
 
-    public void withdraw(double amount) {
-        if (amount <= 0) {
+    public void withdraw(long amountInCents) {
+        if (amountInCents <= 0) {
             System.out.println("取款金额必须大于 0");
             return;
         }
-        if (amount > balance) {
-            System.out.println("余额不足，当前余额 " + balance);
+        if (amountInCents > balanceInCents) {
+            System.out.printf("余额不足，当前余额 %.2f 元%n", balanceInCents / 100.0);
             return;
         }
-        balance -= amount;
-        System.out.println("取出 " + amount + " 元, 余额 " + balance);
+        balanceInCents -= amountInCents;
+        System.out.printf("取出 %.2f 元, 余额 %.2f 元%n",
+            amountInCents / 100.0, balanceInCents / 100.0);
     }
 }
 

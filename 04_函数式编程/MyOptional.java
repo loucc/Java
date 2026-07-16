@@ -253,10 +253,10 @@ class OptionalUser {
  * - 用 map/filter/flatMap 链式处理
  * - 用 orElse/orElseGet 提供默认值
  *
- * DON'T：
- * - 用作方法参数
- * - 用作类的字段
- * - 用作集合元素
+ * 通常避免：
+ * - 仅为表示可空参数而使用 Optional 参数
+ * - 在需要 JavaBean、序列化框架兼容的字段中使用 Optional
+ * - 没有明确语义收益的 Optional 集合元素
  * - 直接 get() 不判断
  * - 判断 isPresent() 后 get()（应该用 orElse 或 ifPresent）
  *
