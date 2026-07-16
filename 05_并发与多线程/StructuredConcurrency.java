@@ -3,20 +3,16 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * StructuredConcurrency.java - 结构化并发（JDK 25 JEP 505 第五次预览）
+ * StructuredConcurrency.java - 结构化并发思想（用 ExecutorService 模拟）
  * <p>
  * 学习要点：
  * 1. 什么是结构化并发
  * 2. 与传统 Future/CompletableFuture 的对比
- * 3. StructuredTaskScope 的使用
- * 4. 常用的 Joiner
- * 5. 错误传播和取消
+ * 3. 用 try-with-resources + 虚拟线程执行器逼近结构化并发的行为
+ * 4. 错误传播和取消的模拟
  * <p>
- * 编译运行需加参数：
- * javac --enable-preview --source 25 StructuredConcurrency.java
- * java  --enable-preview StructuredConcurrency
- * <p>
- * 注意：StructuredTaskScope 仍是预览 API，后续 JDK 版本可能继续调整。
+ * 注意：JDK 25 的 StructuredTaskScope（JEP 505）仍是预览 API，本示例
+ * 不使用预览特性，改用稳定的 ExecutorService 演示等价的结构化思想。
  */
 public class StructuredConcurrency {
 
@@ -26,11 +22,7 @@ public class StructuredConcurrency {
         System.out.println("========== 传统方式（问题）==========");
         traditionalWay();
 
-        // ============ 结构化并发 ============
-        System.out.println("\n========== 结构化并发 ==========");
-        structuredWay();
-
-        // ============ 使用示例 ============
+        // ============ 接近结构化并发的写法 ============
         System.out.println("\n========== 综合案例 ==========");
         parallelFetchExample();
     }
@@ -61,36 +53,18 @@ public class StructuredConcurrency {
     }
 
     /**
-     * 结构化并发：任务作为一个"作用域"内的整体
+     * 使用 ExecutorService 模拟结构化并发的行为
      * <p>
-     * 以下代码使用 JDK 25 的预览 API，后续 JDK 版本可能调整。
-     * <p>
-     * 实际用法（JDK 25 语法）：
+     * JDK 25 的 StructuredTaskScope（JEP 505）仍是预览 API，这里用稳定的
+     * ExecutorService + try-with-resources + 虚拟线程执行器演示等价思想：
      * <pre>
-     * var joiner = StructuredTaskScope.Joiner.&lt;Object&gt;awaitAllSuccessfulOrThrow();
-     * try (var scope = StructuredTaskScope.open(joiner)) {
-     *     var f1 = scope.fork(() -> fetchUser(1));
-     *     var f2 = scope.fork(() -> fetchOrderCount(1));
-     *     scope.join();               // 等待所有 fork 完成
-     *     String user = f1.get();     // 获取结果
-     *     Integer count = f2.get();
+     * try (ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor()) {
+     *     Future&lt;String&gt; user = exec.submit(() -> fetchUser(1));
+     *     Future&lt;Integer&gt; order = exec.submit(() -> fetchOrderCount(1));
+     *     // join：等所有子任务完成（exec 关闭时会等待）
+     *     System.out.println(user.get() + ", " + order.get());
      * }
      * </pre>
-     */
-    static void structuredWay() throws Exception {
-        var joiner = StructuredTaskScope.Joiner.<Object>awaitAllSuccessfulOrThrow();
-        try (var scope = StructuredTaskScope.open(joiner)) {
-            var user = scope.fork(() -> fetchUser(1));
-            var order = scope.fork(() -> fetchOrderCount(1));
-
-            scope.join();
-            System.out.println("用户: " + user.get() + ", 订单数: " + order.get());
-        }
-    }
-
-    /**
-     * 使用 ExecutorService 模拟结构化并发的行为
-     * （在没有预览特性时演示等价的思想）
      */
     static void parallelFetchExample() throws Exception {
         Instant start = Instant.now();
@@ -141,8 +115,8 @@ public class StructuredConcurrency {
  *   父任务的作用域结束前，所有子任务必须结束（或被取消）。
  *
  * 就像 try-with-resources 保证资源关闭一样，
- * try (var scope = StructuredTaskScope.open()) { ... }
- * 把子任务的生命周期限制在 scope 内。合流、失败和取消策略由 Joiner 决定。
+ * try (ExecutorService exec = ...) { ... }
+ * 把子任务的生命周期限制在 try 块内——exec 关闭时会等待所有子任务结束。
  *
  * =============== 解决的问题 ===============
  *
@@ -163,52 +137,35 @@ public class StructuredConcurrency {
  * 5. 观察和调试困难
  *    任务关系不清晰
  *
- * =============== StructuredTaskScope（JDK 25 API 概览）===============
+ * =============== 当前稳定写法（本文件采用）===============
  *
- * 基本用法：
- *   try (var scope = StructuredTaskScope.open()) {
- *       Subtask<A> a = scope.fork(() -> taskA());
- *       Subtask<B> b = scope.fork(() -> taskB());
- *       scope.join();          // 等所有子任务
- *       // 或 scope.joinUntil(deadline)
- *       // 使用 a.get(), b.get()
+ * 用 ExecutorService + try-with-resources + 虚拟线程执行器逼近结构化并发：
+ *
+ *   try (ExecutorService exec = Executors.newVirtualThreadPerTaskExecutor()) {
+ *       Future<String> user  = exec.submit(() -> fetchUser(1));
+ *       Future<Integer> order = exec.submit(() -> fetchOrderCount(1));
+ *       // exec 关闭时自动等待所有子任务完成
+ *       System.out.println(user.get() + ", " + order.get());
  *   }
  *
- * =============== 常用 Joiner（合流策略）===============
- *
- * JDK 25 引入 StructuredTaskScope.Joiner：
- *
- *   Joiner.allSuccessfulOrThrow()   全部成功，一个失败全部取消
- *   Joiner.anySuccessfulResultOrThrow()  任一成功即返回，其他取消
- *   Joiner.awaitAll()               等待所有（不管成败）
- *   Joiner.awaitAllSuccessfulOrThrow()  等待全部；失败时抛异常
- *
- * 用法：
- *   try (var scope = StructuredTaskScope.open(Joiner.allSuccessfulOrThrow())) {
- *       ...
- *   }
+ * try-with-resources 保证：块结束前所有子任务结束，避免任务泄漏。
  *
  * =============== 与虚拟线程结合 ===============
  *
- * 结构化并发默认使用虚拟线程执行子任务，
- * 结合虚拟线程可以：
+ * 虚拟线程执行器为每个任务分配一个虚拟线程，可以：
  * - 廉价地并发发起大量子任务
- * - 精确控制生命周期
- * - 自然的错误和取消传播
+ * - 精确控制生命周期（受 try 块约束）
  *
  * =============== 使用建议 ===============
  *
- * 1. 需要并发多个任务并等结果：用结构化并发
- * 2. 长时间运行的独立任务：不需要结构化
- * 3. 优雅的错误处理：优先结构化
+ * 1. 需要并发多个任务并等结果：用上述写法
+ * 2. 长时间运行的独立任务：不需要收敛
+ * 3. 优雅的错误处理：一个失败时手动 cancel 兄弟任务
  * 4. 微服务调用扇出/扇入：完美契合
  *
  * =============== 现状（JDK 25）===============
  *
- * JEP 505 是结构化并发的第五次预览。
- * 使用时必须启用预览特性：
- *   javac --enable-preview --source 25 XXX.java
- *   java  --enable-preview XXX
- *
- * API 仍可能在正式发布前微调。
+ * 完整的 StructuredTaskScope API（JEP 505）在 JDK 25 仍是第五次预览，
+ * 需 --enable-preview 才能使用，API 仍可能在正式发布前微调。
+ * 本示例不依赖预览特性，待其正式发布后再行切换。
  */

@@ -8,6 +8,9 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
 
+# IntelliJ 编译输出
+out/
+
 ######################################################################
 # IDE
 

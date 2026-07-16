@@ -16,9 +16,6 @@ java 类名
 
 # 直接运行源码（JDK 11+，无需先编译）
 java 文件名.java
-
-# 启用预览特性（JDK 25 部分新特性需要）
-java --enable-preview --source 25 文件名.java
 ```
 
 ## 完整学习顺序
@@ -84,7 +81,7 @@ java --enable-preview --source 25 文件名.java
 | 30 | `ThreadPool.java` | Executor、线程池、Future |
 | 31 | `MyCompletableFuture.java` | 异步编程 |
 | 32 | `VirtualThread.java` | 虚拟线程(JDK 21+ 重大特性) |
-| 33 | `StructuredConcurrency.java` | 结构化并发(JDK 25) |
+| 33 | `StructuredConcurrency.java` | 结构化并发思想（ExecutorService 模拟） |
 | 34 | `ScopedValues.java` | 作用域值(JDK 25) |
 
 ### 第六阶段：IO与网络 (06_IO与网络)
@@ -103,31 +100,26 @@ java --enable-preview --source 25 文件名.java
 | 序号 | 文件 | 主要内容 |
 |-----|------|---------|
 | 39 | `PatternMatching.java` | 模式匹配 for instanceof/switch |
-| 40 | `PrimitivePatterns.java` | 原生类型模式匹配(JEP 507预览) |
-| 41 | `CompactSourceFile.java` | 紧凑源文件(JEP 512) |
-| 42 | `ModuleImport.java` | 模块导入声明(JEP 511) |
-| 43 | `FlexibleConstructor.java` | 灵活构造器体(JEP 513) |
+| 40 | `CompactSourceFile.java` | 紧凑源文件(JEP 512) |
+| 41 | `ModuleImport.java` | 模块导入声明(JEP 511) |
+| 42 | `FlexibleConstructor.java` | 灵活构造器体(JEP 513) |
 
 ### 第八阶段：高级特性 (08_高级特性)
 > 反射、注解、模块系统等高级主题。
 
 | 序号 | 文件 | 主要内容 |
 |-----|------|---------|
-| 44 | `MyAnnotation.java` | 注解、元注解、自定义注解 |
-| 45 | `Reflection.java` | 反射机制、Class、Method、Field |
-| 46 | `ModuleSystem.java` | 模块系统(JDK 9+) |
+| 43 | `MyAnnotation.java` | 注解、元注解、自定义注解 |
+| 44 | `Reflection.java` | 反射机制、Class、Method、Field |
+| 45 | `ModuleSystem.java` | 模块系统(JDK 9+) |
 
 ## JDK 25 主要新特性速览
 
-JDK 25 是 LTS (长期支持) 版本，2025年9月发布，包含以下重要 JEP：
+JDK 25 是 LTS (长期支持) 版本，2025年9月发布，包含以下重要 JEP（本项目仅收录稳定特性，预览特性暂不纳入）：
 
 | JEP | 特性 | 状态 |
 |-----|------|-----|
-| JEP 505 | 结构化并发 | 第五次预览 |
 | JEP 506 | 作用域值 | 正式 |
-| JEP 507 | 原生类型模式匹配 | 第三次预览 |
-| JEP 508 | Vector API | 第十次孵化 |
-| JEP 509 | JFR CPU时间分析 | 实验性 |
 | JEP 510 | 密钥派生函数API | 正式 |
 | JEP 511 | 模块导入声明 | 正式 |
 | JEP 512 | 紧凑源文件和实例main方法 | 正式 |
@@ -135,6 +127,8 @@ JDK 25 是 LTS (长期支持) 版本，2025年9月发布，包含以下重要 JE
 | JEP 514 | AOT命令行工效 | 正式 |
 | JEP 515 | AOT方法分析 | 正式 |
 | JEP 519 | 紧凑对象头 | 正式 |
+
+> 注：JEP 505（结构化并发）、JEP 507（原生类型模式匹配）等仍为预览特性，本项目改用稳定的 ExecutorService 等价写法演示其思想。
 
 ## 学习建议
 
@@ -151,10 +145,10 @@ JDK 25 是 LTS (长期支持) 版本，2025年9月发布，包含以下重要 JE
 - 改变哪个条件会让结果不同或失败？
 - 这个 API 的适用边界和常见误用是什么？
 
-可用下面的命令检查所有示例是否仍能在 JDK 25 编译（预览参数对普通源码无害）：
+可用下面的命令检查所有示例是否能在 JDK 25 编译：
 
 ```bash
-find . -name '*.java' -print0 | xargs -0 -n1 javac --enable-preview --release 25 -Xlint:all
+find . -name '*.java' -print0 | xargs -0 -n1 javac --release 25 -Xlint:all
 find . -name '*.class' -delete
 ```
 
